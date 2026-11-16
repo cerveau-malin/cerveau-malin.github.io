@@ -122,7 +122,15 @@ button{font:inherit;color:inherit;cursor:pointer}
   <label for="pass" id="lblPass"></label><input id="pass" type="password" autocomplete="current-password">
   <button id="signup" class="btn full"></button>
   <button id="login" class="btn alt full" style="margin-top:10px"></button>
+  <button id="forgot" class="btn alt full" style="margin-top:10px"></button>
   <p class="msg" id="accMsg" aria-live="polite"></p>
+</section>
+
+<section id="reset" class="scr">
+  <h2 id="hReset"></h2>
+  <label for="newpw" id="lblNew"></label><input id="newpw" type="password" autocomplete="new-password">
+  <button id="savepw" class="btn full"></button>
+  <p class="msg" id="resMsg" aria-live="polite"></p>
 </section>
 
 <section id="space" class="scr sp">
@@ -288,6 +296,7 @@ parents:"Pour les parents : application éducative gratuite, sans contenu inappr
 uploaded:"Fichier joint|File attached|Файл прикреплён|已附加文件|Dosya eklendi",
 nomic:"Micro indisponible ici (il faut une adresse https)|Microphone unavailable here (https needed)|Микрофон недоступен (нужен https)|此处无法使用麦克风（需要 https）|Mikrofon burada kullanılamıyor (https gerekli)",
 fil:"Ma filière|My field of study|Моё направление|我的专业|Bölümüm",dom:"Domaine|Field|Область|领域|Alan",loadf:"Voir les filières de mon pays|See the programmes in my country|Направления в моей стране|查看我国的专业|Ülkemdeki bölümler",other:"Autre filière…|Other field…|Другое направление…|其他专业…|Başka bölüm…",loadingf:"Chargement…|Loading…|Загрузка…|加载中…|Yükleniyor…",play:"Écouter|Listen|Слушать|朗读|Dinle",
+forgot:"Mot de passe oublié ?|Forgot password?|Забыли пароль?|忘记密码？|Şifreni mi unuttun?",sent:"Un e-mail t'a été envoyé pour changer ton mot de passe.|We sent you an e-mail to reset your password.|Мы отправили письмо для смены пароля.|已发送重置密码邮件。|Şifreni değiştirmek için e-posta gönderdik.",newpw:"Nouveau mot de passe (8 caractères minimum)|New password (8 characters minimum)|Новый пароль (минимум 8 символов)|新密码（至少 8 个字符）|Yeni şifre (en az 8 karakter)",savepw:"Enregistrer|Save|Сохранить|保存|Kaydet",pwdone:"Mot de passe changé. Tu peux te connecter.|Password changed. You can log in now.|Пароль изменён. Теперь можно войти.|密码已更改，现在可以登录。|Şifre değiştirildi. Artık giriş yapabilirsin.",needmail:"Écris d'abord ton e-mail ci-dessus.|Enter your e-mail above first.|Сначала введи e-mail выше.|请先在上方输入邮箱。|Önce yukarıya e-postanı yaz.",
 edit:"Modifier mon profil|Edit my profile|Изменить профиль|修改资料|Profili düzenle"};
 /* ===== MATIÈRES PAR NIVEAU (primaire, collège, lycée, université/doctorat) ===== */
 const SUBJ=[
@@ -336,7 +345,7 @@ function render(){
   if(profile.country)$("country").value=profile.country;
   chips($("lvChips"),x.lv.map((v,i)=>[i,v]),profile.level??0,v=>{profile.country=$("country").value;profile.level=+v;profile.grade=undefined;render()});
   fill($("grade"),grades().map(g=>[g,g]));if(profile.grade)$("grade").value=profile.grade;
-  $("hAcc").textContent=x.hAcc;$("lblEmail").textContent=x.email;$("lblPass").textContent=x.pass;$("signup").textContent=x.signup;$("login").textContent=x.login;
+  $("hAcc").textContent=x.hAcc;$("forgot").textContent=L("forgot");$("hReset").textContent="🔑 "+L("forgot");$("lblNew").textContent=L("newpw");$("savepw").textContent=L("savepw");$("lblEmail").textContent=x.email;$("lblPass").textContent=x.pass;$("signup").textContent=x.signup;$("login").textContent=x.login;
   /* en-tête */
   const av=$("av");av.innerHTML="";if(profile.photo){const i=mk("img");i.src=profile.photo;i.alt="";av.appendChild(i)}else av.textContent=(profile.name||"?").charAt(0).toUpperCase();
   $("hiName").textContent=L("hello")+" "+(profile.name||"");$("hiSub").textContent=(profile.grade?profile.grade+" · ":"")+x.lv[profile.level||0];
@@ -491,6 +500,25 @@ async function saveProfile(){
   if(!ok()||!token)return;
   try{await fetch(SUPABASE_URL+"/rest/v1/profiles?on_conflict=user_id",{method:"POST",headers:{...H(),Prefer:"resolution=merge-duplicates"},body:JSON.stringify({country:profile.country,lang,level:profile.level||0})})}catch(e){}
 }
+let recTok=null;
+async function forgot(){
+  const email=$("email").value.trim(),m=$("accMsg");m.textContent="";
+  if(!/^\S+@\S+\.\S+$/.test(email)){m.textContent=L("needmail");return}
+  if(!ok()){m.textContent=t().demo;return}
+  try{
+    const back=location.protocol.startsWith("http")?"?redirect_to="+encodeURIComponent(location.href.split("#")[0]):"";
+    const r=await fetch(SUPABASE_URL+"/auth/v1/recover"+back,{method:"POST",headers:{"Content-Type":"application/json",apikey:SUPABASE_ANON_KEY},body:JSON.stringify({email})});
+    m.textContent=r.ok?L("sent"):t().err;
+  }catch(e){m.textContent=t().err}
+}
+async function saveNewPw(){
+  const pw=$("newpw").value,m=$("resMsg");m.textContent="";
+  if(pw.length<8){m.textContent=t().short;return}
+  try{
+    const r=await fetch(SUPABASE_URL+"/auth/v1/user",{method:"PUT",headers:{"Content-Type":"application/json",apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+recTok},body:JSON.stringify({password:pw})});
+    if(r.ok){m.textContent=L("pwdone");recTok=null;$("newpw").value="";setTimeout(()=>show("acc"),1800)}else m.textContent=t().err;
+  }catch(e){m.textContent=t().err}
+}
 function enter(){tab="prof";$("chat").hidden=true;render();show("space")}
 function setLang(v){lang=v;try{localStorage.setItem("cm_lang",lang)}catch(e){}render()}
 
@@ -498,7 +526,7 @@ $("start").onclick=()=>{show("ad");let n=5;const b=$("adGo");b.disabled=true;b.t
   const iv=setInterval(()=>{n--;if(n>0)b.textContent=t().adWait(n);else{clearInterval(iv);b.disabled=false;b.textContent=t().adGo}},1000)};
 $("adGo").onclick=()=>show("prof");
 $("profNext").onclick=()=>{profile.name=$("pname").value.trim();profile.country=$("country").value;profile.grade=$("grade").value;profile.level=profile.level||0;saveP();token?enter():show("acc")};
-$("signup").onclick=()=>auth("signup");$("login").onclick=()=>auth("login");
+$("forgot").onclick=forgot;$("savepw").onclick=saveNewPw;$("signup").onclick=()=>auth("signup");$("login").onclick=()=>auth("login");
 $("send").onclick=()=>ask(ctx.mode);$("q").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();ask(ctx.mode)}};
 $("cBack").onclick=()=>{$("chat").hidden=true;render()};
 $("cProg").onclick=()=>ask("program",L("prog")+" — "+ctx.subj,false);
@@ -527,7 +555,12 @@ $("gBack").onclick=()=>{tab="learn";render()};
   size();addEventListener("resize",size);draw();
 })();
 render();
-if(token&&profile.country)enter();
+const hp=new URLSearchParams(location.hash.slice(1)),ht=hp.get("access_token");
+if(ht){
+  try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}
+  if(hp.get("type")==="recovery"){recTok=ht;show("reset")}
+  else{token=ht;try{sessionStorage.setItem("cm_tok",ht)}catch(e){}if(profile.country)enter();else show("prof")}
+}else if(token&&profile.country)enter();
 </script>
 </body>
 </html>
