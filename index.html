@@ -306,6 +306,7 @@ setInterval(()=>{adI++;if($("space").classList.contains("on")&&!AD_CONFIG.adsens
 
 /* ===== TEXTES DE LA VERSION 2027 : fr|en|ru|zh|tr ===== */
 const T2={
+trans:"Traduire la page|Translate the page|Перевести страницу|翻译此页|Sayfayı çevir|ترجمة الصفحة",trNote:"La traduction sert à lire. Pour postuler, utilise le site officiel d'origine.|Translation is for reading. To apply, use the original official site.|Перевод нужен для чтения. Подавай заявку на оригинальном официальном сайте.|翻译仅供阅读。申请请使用原官方网站。|Çeviri okumak içindir. Başvuru için orijinal resmî siteyi kullan.|الترجمة للقراءة فقط. للتقديم استخدم الموقع الرسمي الأصلي.",
 daily:"Défi du jour|Daily challenge|Задание дня|每日挑战|Günün görevi|تحدّي اليوم",dailyDone:"Défi réussi ! +30 points|Challenge complete! +30 points|Задание выполнено! +30 баллов|挑战完成！+30 积分|Görev tamam! +30 puan|أحسنت! أنجزت التحدّي +30 نقطة",lvl:"Niveau|Level|Уровень|等级|Seviye|المستوى",invite:"Inviter un ami|Invite a friend|Пригласить друга|邀请朋友|Arkadaşını davet et|ادعُ صديقًا",shareTxt:"Cerveau Malin : cours, exercices et bourses gratuits avec une IA.|Cerveau Malin: free lessons, exercises and scholarships with an AI.|Cerveau Malin: бесплатные уроки, упражнения и стипендии с ИИ.|Cerveau Malin：免费课程、练习和奖学金，由AI辅导。|Cerveau Malin: yapay zekâ ile ücretsiz ders, alıştırma ve burs.|Cerveau Malin: دروس وتمارين ومنح مجانية مع الذكاء الاصطناعي.",
 offline:"Pas de connexion internet. Reconnecte-toi pour poser une question.|No internet connection. Reconnect to ask a question.|Нет интернета. Подключись, чтобы задать вопрос.|没有网络。请连接网络后再提问。|İnternet yok. Soru sormak için bağlan.|لا يوجد اتصال بالإنترنت. أعد الاتصال لتطرح سؤالًا.",offl:"Hors ligne|Offline|Нет сети|离线|Çevrimdışı|غير متصل",
 hello:"Bonjour|Hello|Привет|你好|Merhaba|مرحبًا",name:"Ton prénom|Your first name|Твоё имя|你的名字|Adın|اسمك الأول",online:"Connecté|Online|В сети|在线|Çevrimiçi|متصل",
@@ -443,16 +444,19 @@ function drawMore(){
   b.append(z,mk("p","note",L("parents")),sh,e,o);
 }
 function drawGrantsView(){
-  const x=t();$("gTitle").textContent=x.tabs[3];$("gs").placeholder=x.gs;$("gnote").textContent=x.gnote;
+  const x=t();$("gTitle").textContent=x.tabs[3];$("gs").placeholder=x.gs;$("gnote").textContent=x.gnote+" "+L("trNote");
   const cs=[...new Set(GRANTS.map(a=>a.c))].sort();
   fill($("gc"),[["",x.allC],...cs.map(c=>[c,c])]);fill($("gl"),[["",x.allL],...x.lv.map((v,i)=>[i,v])]);drawGrants();
 }
+function trUrl(link){try{const u=new URL(link),tl={fr:"fr",en:"en",ru:"ru",zh:"zh-CN",tr:"tr",ar:"ar"}[lang]||"fr",q=new URLSearchParams(u.search);
+  q.set("_x_tr_sl","auto");q.set("_x_tr_tl",tl);q.set("_x_tr_hl",tl);q.set("_x_tr_pto","wapp");
+  return "https://"+u.hostname.replace(/-/g,"--").replace(/\./g,"-")+".translate.goog"+u.pathname+"?"+q}catch(e){return link}}
 function drawGrants(){
   const x=t(),s=$("gs").value.trim().toLowerCase(),c=$("gc").value,l=$("gl").value,box=$("glist");box.innerHTML="";
   const list=GRANTS.filter(g=>(!c||g.c===c)&&(l===""||g.l.includes(+l))&&(!s||(g.n+" "+g.c).toLowerCase().includes(s)));
   if(!list.length){box.appendChild(mk("p","",x.none));return}
   list.forEach(g=>{const d=mk("div","g");d.append(mk("b","",g.n),mk("small","",g.c+" · "+g.l.map(i=>x.lv[i]).join(", ")),mk("br"));
-    const a=mk("a","",x.apply);a.href=g.u;a.target="_blank";a.rel="noopener noreferrer";d.append(a);box.appendChild(d)});
+    const a=mk("a","",x.apply);a.href=g.u;a.target="_blank";a.rel="noopener noreferrer";d.append(a);const b2=mk("a","","🌐 "+L("trans"));b2.href=trUrl(g.u);b2.target="_blank";b2.rel="noopener noreferrer";b2.style.cssText="margin-inline-start:8px;background:var(--sf);color:var(--ink);border:1px solid var(--line)";d.append(b2);box.appendChild(d)});
 }
 
 /* ===== FILIÈRES SELON LE PAYS ===== */
