@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cerveau Malin</title>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#3a49d6"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <style>
 
 :root{--bg:#f6f7fc;--sf:#fff;--ink:#0f1535;--mute:#5b6384;--line:#e1e4f2;--acc:#3a49d6;--soft:#e8ebff;--amber:#f2a93b;--onacc:#fff;--sh:0 8px 28px rgba(20,30,90,.07);color-scheme:light}
@@ -55,6 +56,11 @@ button{font:inherit;color:inherit;cursor:pointer}
 .note{font-size:14px;color:var(--mute);background:var(--soft);border-radius:14px;padding:12px;margin:14px 0}
 .msg{min-height:24px;color:#c2410c;font-weight:600;margin-top:12px}
 @media(prefers-color-scheme:dark){.msg{color:var(--amber)}}
+[dir=rtl] .card{text-align:right}[dir=rtl] .rt{text-align:left}
+[dir=rtl] .m.u{margin-left:0;margin-right:auto;border-bottom-right-radius:18px;border-bottom-left-radius:6px}
+[dir=rtl] .m.a{border-bottom-left-radius:18px;border-bottom-right-radius:6px}
+[dir=rtl] .adc{border-left:1px solid var(--line);border-right:4px solid var(--amber)}
+[dir=rtl] #gBack,[dir=rtl] #cBack{transform:scaleX(-1)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 
 .sp{padding-bottom:120px}
@@ -87,8 +93,6 @@ button{font:inherit;color:inherit;cursor:pointer}
 .stat b{display:block;font:700 28px Georgia,serif;color:var(--acc)}.stat small{color:var(--mute)}
 .bdg{font-size:34px;letter-spacing:8px}.off{filter:grayscale(1);opacity:.3}
 </style>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7529916954780027"
-     crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -158,6 +162,7 @@ button{font:inherit;color:inherit;cursor:pointer}
     <div id="glist"></div><p class="note" id="gnote"></p>
   </div>
 
+  <div class="adc" id="adBar"></div>
   <nav class="fbar" id="fbar"></nav>
 
   <div id="chat" class="sheet" hidden>
@@ -232,10 +237,21 @@ tr:{lang:"Dil",welcome:"Cerveau Malin'e hoş geldin",intro:"Öğren · Anla · B
  subj:["Sosyal bilimler (tarih, coğrafya, felsefe, sosyoloji)","Bilişim ve teknik","Diller ve edebiyat","Yüksek öğrenim"],
  send:"Gönder",gs:"Burs veya ülke ara",allC:"Tüm ülkeler",allL:"Tüm seviyeler",apply:"Resmî sitede başvur",
  gnote:"Koşulları ve tarihleri her zaman resmî sitede kontrol et: her yıl değişir. Cerveau Malin başvuru için asla para istemez.",none:"Burs bulunamadı. Filtreleri değiştir.",
- demo:"Demo modu: gerçek yapay zekâyı açmak için Supabase'i bağla (SUPABASE_URL ve SUPABASE_ANON_KEY).",err:"Hizmet kullanılamıyor. Biraz sonra tekrar dene.",limit:"Bugünkü sınıra ulaştın. Yarın tekrar gel."}
+ demo:"Demo modu: gerçek yapay zekâyı açmak için Supabase'i bağla (SUPABASE_URL ve SUPABASE_ANON_KEY).",err:"Hizmet kullanılamıyor. Biraz sonra tekrar dene.",limit:"Bugünkü sınıra ulaştın. Yarın tekrar gel."},
+ar:{lang:"اللغة",welcome:"مرحبًا بك في Cerveau Malin",intro:"تعلّم · افهم · انجح. دروس وتمارين ومقالات ومنح وجامعات، مع ذكاء اصطناعي يتكيّف مع مستواك. مجاني 100٪.",start:"ابدأ",
+ ad:"إعلان",adWait:n=>`المتابعة بعد ${n} ث`,adGo:"متابعة",adBox:"مساحة إعلانية",
+ hProf:"أنشئ ملفك الشخصي",country:"البلد",level:"المستوى الدراسي",lv:["الابتدائي","الإعدادي","الثانوي","الجامعة","الدكتوراه"],next:"التالي",
+ hAcc:"حسابك",email:"البريد الإلكتروني",pass:"كلمة المرور (8 أحرف على الأقل)",signup:"إنشاء حسابي",login:"تسجيل الدخول",out:"تسجيل الخروج",
+ confirm:"تحقّق من بريدك الإلكتروني لتأكيد حسابك، ثم سجّل الدخول.",bad:"البريد الإلكتروني أو كلمة المرور غير صحيحة.",short:"أدخل بريدًا إلكترونيًا صحيحًا وكلمة مرور من 8 أحرف على الأقل.",
+ tabs:["الدروس","التمارين","المقالات","المنح","الجامعات","المساعد الذكي"],
+ hint:["أي درس تريد أن تفهم؟","في أي موضوع تريد تمارين؟","ما هو موضوع مقالك؟","","ما المجال والبلد اللذان يهمّانك؟","اطرح سؤالك…"],
+ subj:["العلوم الإنسانية (التاريخ، الجغرافيا، الفلسفة، علم الاجتماع)","الحاسوب والتقنية","اللغات والأدب","الدراسات العليا"],
+ send:"إرسال",gs:"ابحث عن منحة أو بلد",allC:"كل البلدان",allL:"كل المستويات",apply:"التقديم على الموقع الرسمي",
+ gnote:"تحقّق دائمًا من الشروط والمواعيد على الموقع الرسمي، فهي تتغيّر كل سنة. Cerveau Malin لا يطلب منك مالًا أبدًا للتقديم.",none:"لم نجد أي منحة. غيّر عوامل التصفية.",
+ demo:"وضع تجريبي: اربط Supabase (SUPABASE_URL و SUPABASE_ANON_KEY) لتفعيل الذكاء الاصطناعي الحقيقي.",err:"الخدمة غير متاحة. حاول مرة أخرى بعد قليل.",limit:"وصلت إلى حدّ اليوم. عُد غدًا."}
 };
 const MODES=["course","exercise","essay","grants","uni","ai"];
-const CC="TD CM NE NG CF SD LY DZ MA TN EG SN ML BF CI GH TG BJ GN GA CG CD BI RW KE UG TZ ET SO DJ MG MU ZA MZ AO ZM ZW NA BW CV FR BE CH CA US GB DE ES IT PT TR RU CN IN JP KR BR MX SA AE QA LB".split(" ");
+const CC="TD CM NE NG CF SD LY DZ MA TN EG SN ML BF CI GH TG BJ GN GA CG CD BI RW KE UG TZ ET SO DJ MG MU ZA MZ AO ZM ZW NA BW CV FR BE CH CA US GB DE ES IT PT TR RU CN IN JP KR BR MX SA AE QA LB MR IQ JO SY YE OM KW BH PS KM".split(" ");
 const GRANTS=[
  {n:"Chinese Government Scholarship (CSC)",c:"Chine",l:[3,4],u:"https://www.campuschina.org"},
  {n:"Türkiye Bursları",c:"Turquie",l:[3,4],u:"https://turkiyeburslari.gov.tr"},
@@ -250,62 +266,76 @@ const GRANTS=[
  {n:"Mastercard Foundation Scholars",c:"Afrique / international",l:[2,3],u:"https://mastercardfdn.org"},
  {n:"Swedish Institute Scholarships",c:"Suède",l:[3],u:"https://si.se/en/apply"},
  {n:"Gates Cambridge",c:"Royaume-Uni",l:[3,4],u:"https://www.gatescambridge.org"},
- {n:"ETH Zurich ESOP",c:"Suisse",l:[4],u:"https://ethz.ch/en/studies/financial/scholarships/esop.html"}
+ {n:"ETH Zurich ESOP",c:"Suisse",l:[4],u:"https://ethz.ch/en/studies/financial/scholarships/esop.html"},
+ {n:"Korean Government Scholarship (GKS)",c:"Corée du Sud",l:[3, 4],u:"https://www.studyinkorea.go.kr"},
+ {n:"MEXT",c:"Japon",l:[3, 4],u:"https://www.studyinjapan.go.jp"},
+ {n:"Swiss Government Excellence",c:"Suisse",l:[4],u:"https://www.sbfi.admin.ch/scholarships"},
+ {n:"Banque islamique de développement",c:"International",l:[3, 4],u:"https://www.isdb.org"},
 ];
 
 
 /* ===== PUBLICITÉS (exemples éducatifs : à remplacer par AdMob/AdSense ou de vrais annonceurs) ===== */
 const ICONS=["📘","✍️","📝","🎓","🏛️","🤖"];
-const LI={fr:0,en:1,ru:2,zh:3,tr:4};
-const CTA=["Découvrir","Discover","Узнать","了解","Keşfet"];
+const LI={fr:0,en:1,ru:2,zh:3,tr:4,ar:5};
+const CTA=["Découvrir","Discover","Узнать","了解","Keşfet","اكتشف"];
 const ADS=[
- {ic:"🧠",t:["Révise plus vite avec des fiches intelligentes","Revise faster with smart flashcards","Учись быстрее с умными карточками","用智能卡片更快复习","Akıllı kartlarla daha hızlı tekrar et"]},
- {ic:"🌍",t:["Étudier à l'étranger ? Prépare ton dossier dès maintenant","Study abroad? Start your application now","Учёба за рубежом? Начни готовить документы сейчас","想出国留学？现在就准备申请材料","Yurt dışında okumak mı? Dosyanı şimdi hazırla"]},
- {ic:"💻",t:["Apprends à programmer pas à pas","Learn to code step by step","Учись программировать шаг за шагом","一步一步学编程","Adım adım programlamayı öğren"]},
- {ic:"🗣️",t:["Parle anglais, chinois ou turc avec confiance","Speak English, Chinese or Turkish with confidence","Говори по-английски, по-китайски или по-турецки уверенно","自信地说英语、中文或土耳其语","İngilizce, Çince veya Türkçe'yi güvenle konuş"]}
+ {ic:"🧠",t:["Révise plus vite avec des fiches intelligentes","Revise faster with smart flashcards","Учись быстрее с умными карточками","用智能卡片更快复习","Akıllı kartlarla daha hızlı tekrar et","راجع أسرع ببطاقات ذكية"]},
+ {ic:"🌍",t:["Étudier à l'étranger ? Prépare ton dossier dès maintenant","Study abroad? Start your application now","Учёба за рубежом? Начни готовить документы сейчас","想出国留学？现在就准备申请材料","Yurt dışında okumak mı? Dosyanı şimdi hazırla","هل تريد الدراسة في الخارج؟ حضّر ملفّك الآن"]},
+ {ic:"💻",t:["Apprends à programmer pas à pas","Learn to code step by step","Учись программировать шаг за шагом","一步一步学编程","Adım adım programlamayı öğren","تعلّم البرمجة خطوة بخطوة"]},
+ {ic:"🗣️",t:["Parle anglais, chinois ou turc avec confiance","Speak English, Chinese or Turkish with confidence","Говори по-английски, по-китайски или по-турецки уверенно","自信地说英语、中文或土耳其语","İngilizce, Çince veya Türkçe'yi güvenle konuş","تحدّث الإنجليزية أو الصينية أو التركية بثقة"]}
 ];
 let adI=0;
+const AD_CONFIG={wait:5,adsenseClient:"",adsenseSlot:""}; /* remplir pour activer Google AdSense */
 function drawAd(el,big){
+  if(!el)return;
+  if(AD_CONFIG.adsenseClient&&AD_CONFIG.adsenseSlot){
+    if(el.dataset.done||!navigator.onLine)return;el.dataset.done=1;el.innerHTML="";
+    const ins=document.createElement("ins");ins.className="adsbygoogle";ins.style.display="block";ins.dataset.adClient=AD_CONFIG.adsenseClient;ins.dataset.adSlot=AD_CONFIG.adsenseSlot;ins.dataset.adFormat="auto";el.appendChild(ins);
+    try{if(!window.__ads){const sc=document.createElement("script");sc.async=true;sc.crossOrigin="anonymous";sc.src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client="+AD_CONFIG.adsenseClient;document.head.appendChild(sc);window.__ads=1}(window.adsbygoogle=window.adsbygoogle||[]).push({})}catch(e){}
+    return}
   const a=ADS[adI%ADS.length],k=LI[lang]||0;el.innerHTML="";
   const ic=document.createElement("span");ic.className="ic";ic.textContent=a.ic;
   const tx=document.createElement("span");tx.className="tx";tx.textContent=a.t[k];
   const sm=document.createElement("small");sm.textContent=t().ad;tx.prepend(sm);
   const c=document.createElement("span");c.className="cta";c.textContent=CTA[k];
   el.append(ic,tx,c);
+  el.onclick=a.u?()=>window.open(a.u,"_blank","noopener"):null;
 }
-setInterval(()=>{adI++;if($("space").classList.contains("on"))drawAd($("adBar"))},9000);
+setInterval(()=>{adI++;if($("space").classList.contains("on")&&!AD_CONFIG.adsenseClient)drawAd($("adBar"))},9000);
 
 
 /* ===== TEXTES DE LA VERSION 2027 : fr|en|ru|zh|tr ===== */
 const T2={
-hello:"Bonjour|Hello|Привет|你好|Merhaba",name:"Ton prénom|Your first name|Твоё имя|你的名字|Adın",online:"Connecté|Online|В сети|在线|Çevrimiçi",
-week:"leçons cette semaine|lessons this week|уроков на этой неделе|本周课程|bu hafta ders",keep:"continue !|keep going!|так держать!|加油！|devam et!",
-z1:"Continue là où tu t'es arrêté|Pick up where you left off|Продолжи с того места, где остановился|从上次中断的地方继续|Kaldığın yerden devam et",
-z1n:"Commence ta première leçon|Start your first lesson|Начни первый урок|开始你的第一课|İlk dersine başla",go:"Continuer|Continue|Продолжить|继续|Devam",
-z2:"Tes matières du jour|Your subjects today|Предметы на сегодня|今日科目|Bugünün dersleri",rev:"Révision|Revision|Повторение|复习|Tekrar",
-diss:"Dissertation|Essay|Сочинение|作文|Kompozisyon",z3:"Ton objectif|Your goal|Твоя цель|你的目标|Hedefin",
-g0:"Objectif Bac / examen|Goal: final exam|Цель: экзамен|目标：考试|Hedef: sınav",g1:"Objectif Bourse|Goal: scholarship|Цель: стипендия|目标：奖学金|Hedef: burs",
-g2:"Objectif Licence|Goal: Bachelor's|Цель: бакалавриат|目标：本科|Hedef: lisans",g3:"Objectif Master|Goal: Master's|Цель: магистратура|目标：硕士|Hedef: yüksek lisans",
-nProf:"Profil|Profile|Профиль|我的|Profil",nLearn:"Apprendre|Learn|Учёба|学习|Öğren",nProg:"Progrès|Progress|Прогресс|进度|İlerleme",nMore:"Plus|More|Ещё|更多|Daha",
-listen:"Je t'écoute…|I'm listening…|Слушаю тебя…|我在听…|Seni dinliyorum…",b1:"L'idée simple|The simple idea|Главная мысль|核心思路|Basit fikir",
-b2:"Pas à pas|Step by step|Шаг за шагом|一步一步|Adım adım",b3:"À toi de jouer|Your turn|Твоя очередь|轮到你了|Sıra sende",
-verify:"Je vérifie ma réponse|Check my answer|Проверить ответ|检查我的答案|Cevabımı kontrol et",again:"Explique-moi autrement|Explain it differently|Объясни по-другому|换种方式解释|Başka türlü anlat",
-yourans:"Ta réponse…|Your answer…|Твой ответ…|你的答案…|Cevabın…",prog:"Programme|Curriculum|Программа|课程大纲|Müfredat",
-cls:"Classe / année|Grade / year|Класс / год|年级|Sınıf / yıl",streak:"jours de travail|study days|дней занятий|学习天数|çalışma günü",
-pts:"points|points|баллы|积分|puan",les:"leçons|lessons|уроков|课程|ders",
-notice:"Le programme est généré par l'IA selon ton pays : vérifie-le avec les documents officiels de ton école.|The curriculum is AI-generated for your country: check it against your school's official documents.|Программа создана ИИ для твоей страны: сверяй её с официальными документами школы.|课程由 AI 按你的国家生成，请与学校官方文件核对。|Müfredat ülkene göre yapay zekâ tarafından oluşturuldu: okulunun resmî belgeleriyle karşılaştır.",
-parents:"Pour les parents : application éducative gratuite, sans contenu inapproprié. L'IA aide à apprendre, elle ne remplace pas l'école.|For parents: free educational app, no inappropriate content. The AI helps learning but does not replace school.|Для родителей: бесплатное образовательное приложение без неподходящего контента. ИИ помогает учиться, но не заменяет школу.|给家长：免费教育应用，无不当内容。AI 辅助学习，不能取代学校。|Ebeveynler için: ücretsiz eğitim uygulaması, uygunsuz içerik yok. Yapay zekâ öğrenmeye yardım eder, okulun yerini almaz.",
-uploaded:"Fichier joint|File attached|Файл прикреплён|已附加文件|Dosya eklendi",
-nomic:"Micro indisponible ici (il faut une adresse https)|Microphone unavailable here (https needed)|Микрофон недоступен (нужен https)|此处无法使用麦克风（需要 https）|Mikrofon burada kullanılamıyor (https gerekli)",
-fil:"Ma filière|My field of study|Моё направление|我的专业|Bölümüm",dom:"Domaine|Field|Область|领域|Alan",loadf:"Voir les filières de mon pays|See the programmes in my country|Направления в моей стране|查看我国的专业|Ülkemdeki bölümler",other:"Autre filière…|Other field…|Другое направление…|其他专业…|Başka bölüm…",loadingf:"Chargement…|Loading…|Загрузка…|加载中…|Yükleniyor…",play:"Écouter|Listen|Слушать|朗读|Dinle",
-forgot:"Mot de passe oublié ?|Forgot password?|Забыли пароль?|忘记密码？|Şifreni mi unuttun?",sent:"Un e-mail t'a été envoyé pour changer ton mot de passe.|We sent you an e-mail to reset your password.|Мы отправили письмо для смены пароля.|已发送重置密码邮件。|Şifreni değiştirmek için e-posta gönderdik.",newpw:"Nouveau mot de passe (8 caractères minimum)|New password (8 characters minimum)|Новый пароль (минимум 8 символов)|新密码（至少 8 个字符）|Yeni şifre (en az 8 karakter)",savepw:"Enregistrer|Save|Сохранить|保存|Kaydet",pwdone:"Mot de passe changé. Tu peux te connecter.|Password changed. You can log in now.|Пароль изменён. Теперь можно войти.|密码已更改，现在可以登录。|Şifre değiştirildi. Artık giriş yapabilirsin.",needmail:"Écris d'abord ton e-mail ci-dessus.|Enter your e-mail above first.|Сначала введи e-mail выше.|请先在上方输入邮箱。|Önce yukarıya e-postanı yaz.",
-edit:"Modifier mon profil|Edit my profile|Изменить профиль|修改资料|Profili düzenle"};
+daily:"Défi du jour|Daily challenge|Задание дня|每日挑战|Günün görevi|تحدّي اليوم",dailyDone:"Défi réussi ! +30 points|Challenge complete! +30 points|Задание выполнено! +30 баллов|挑战完成！+30 积分|Görev tamam! +30 puan|أحسنت! أنجزت التحدّي +30 نقطة",lvl:"Niveau|Level|Уровень|等级|Seviye|المستوى",invite:"Inviter un ami|Invite a friend|Пригласить друга|邀请朋友|Arkadaşını davet et|ادعُ صديقًا",shareTxt:"Cerveau Malin : cours, exercices et bourses gratuits avec une IA.|Cerveau Malin: free lessons, exercises and scholarships with an AI.|Cerveau Malin: бесплатные уроки, упражнения и стипендии с ИИ.|Cerveau Malin：免费课程、练习和奖学金，由AI辅导。|Cerveau Malin: yapay zekâ ile ücretsiz ders, alıştırma ve burs.|Cerveau Malin: دروس وتمارين ومنح مجانية مع الذكاء الاصطناعي.",
+offline:"Pas de connexion internet. Reconnecte-toi pour poser une question.|No internet connection. Reconnect to ask a question.|Нет интернета. Подключись, чтобы задать вопрос.|没有网络。请连接网络后再提问。|İnternet yok. Soru sormak için bağlan.|لا يوجد اتصال بالإنترنت. أعد الاتصال لتطرح سؤالًا.",offl:"Hors ligne|Offline|Нет сети|离线|Çevrimdışı|غير متصل",
+hello:"Bonjour|Hello|Привет|你好|Merhaba|مرحبًا",name:"Ton prénom|Your first name|Твоё имя|你的名字|Adın|اسمك الأول",online:"Connecté|Online|В сети|在线|Çevrimiçi|متصل",
+week:"leçons cette semaine|lessons this week|уроков на этой неделе|本周课程|bu hafta ders|دروس هذا الأسبوع",keep:"continue !|keep going!|так держать!|加油！|devam et!|واصل!",
+z1:"Continue là où tu t'es arrêté|Pick up where you left off|Продолжи с того места, где остановился|从上次中断的地方继续|Kaldığın yerden devam et|أكمل من حيث توقفت",
+z1n:"Commence ta première leçon|Start your first lesson|Начни первый урок|开始你的第一课|İlk dersine başla|ابدأ درسك الأول",go:"Continuer|Continue|Продолжить|继续|Devam|متابعة",
+z2:"Tes matières du jour|Your subjects today|Предметы на сегодня|今日科目|Bugünün dersleri|موادّك اليوم",rev:"Révision|Revision|Повторение|复习|Tekrar|مراجعة",
+diss:"Dissertation|Essay|Сочинение|作文|Kompozisyon|مقال",z3:"Ton objectif|Your goal|Твоя цель|你的目标|Hedefin|هدفك",
+g0:"Objectif Bac / examen|Goal: final exam|Цель: экзамен|目标：考试|Hedef: sınav|الهدف: الباكالوريا / الامتحان",g1:"Objectif Bourse|Goal: scholarship|Цель: стипендия|目标：奖学金|Hedef: burs|الهدف: منحة دراسية",
+g2:"Objectif Licence|Goal: Bachelor's|Цель: бакалавриат|目标：本科|Hedef: lisans|الهدف: الليسانس",g3:"Objectif Master|Goal: Master's|Цель: магистратура|目标：硕士|Hedef: yüksek lisans|الهدف: الماستر",
+nProf:"Profil|Profile|Профиль|我的|Profil|الملف",nLearn:"Apprendre|Learn|Учёба|学习|Öğren|تعلّم",nProg:"Progrès|Progress|Прогресс|进度|İlerleme|التقدم",nMore:"Plus|More|Ещё|更多|Daha|المزيد",
+listen:"Je t'écoute…|I'm listening…|Слушаю тебя…|我在听…|Seni dinliyorum…|أنا أصغي إليك…",b1:"L'idée simple|The simple idea|Главная мысль|核心思路|Basit fikir|الفكرة البسيطة",
+b2:"Pas à pas|Step by step|Шаг за шагом|一步一步|Adım adım|خطوة بخطوة",b3:"À toi de jouer|Your turn|Твоя очередь|轮到你了|Sıra sende|دورك الآن",
+verify:"Je vérifie ma réponse|Check my answer|Проверить ответ|检查我的答案|Cevabımı kontrol et|تحقّق من إجابتي",again:"Explique-moi autrement|Explain it differently|Объясни по-другому|换种方式解释|Başka türlü anlat|اشرح لي بطريقة أخرى",
+yourans:"Ta réponse…|Your answer…|Твой ответ…|你的答案…|Cevabın…|إجابتك…",prog:"Programme|Curriculum|Программа|课程大纲|Müfredat|المنهج",
+cls:"Classe / année|Grade / year|Класс / год|年级|Sınıf / yıl|الصف / السنة",streak:"jours de travail|study days|дней занятий|学习天数|çalışma günü|أيام الدراسة",
+pts:"points|points|баллы|积分|puan|نقاط",les:"leçons|lessons|уроков|课程|ders|دروس",
+notice:"Le programme est généré par l'IA selon ton pays : vérifie-le avec les documents officiels de ton école.|The curriculum is AI-generated for your country: check it against your school's official documents.|Программа создана ИИ для твоей страны: сверяй её с официальными документами школы.|课程由 AI 按你的国家生成，请与学校官方文件核对。|Müfredat ülkene göre yapay zekâ tarafından oluşturuldu: okulunun resmî belgeleriyle karşılaştır.|المنهج يولّده الذكاء الاصطناعي حسب بلدك: قارنه بالوثائق الرسمية لمدرستك.",
+parents:"Pour les parents : application éducative gratuite, sans contenu inapproprié. L'IA aide à apprendre, elle ne remplace pas l'école.|For parents: free educational app, no inappropriate content. The AI helps learning but does not replace school.|Для родителей: бесплатное образовательное приложение без неподходящего контента. ИИ помогает учиться, но не заменяет школу.|给家长：免费教育应用，无不当内容。AI 辅助学习，不能取代学校。|Ebeveynler için: ücretsiz eğitim uygulaması, uygunsuz içerik yok. Yapay zekâ öğrenmeye yardım eder, okulun yerini almaz.|للآباء: تطبيق تعليمي مجاني بلا محتوى غير لائق. الذكاء الاصطناعي يساعد على التعلّم ولا يحلّ محل المدرسة.",
+uploaded:"Fichier joint|File attached|Файл прикреплён|已附加文件|Dosya eklendi|تم إرفاق ملف",
+nomic:"Micro indisponible ici (il faut une adresse https)|Microphone unavailable here (https needed)|Микрофон недоступен (нужен https)|此处无法使用麦克风（需要 https）|Mikrofon burada kullanılamıyor (https gerekli)|الميكروفون غير متاح هنا (يلزم عنوان https)",
+fil:"Ma filière|My field of study|Моё направление|我的专业|Bölümüm|تخصصي",dom:"Domaine|Field|Область|领域|Alan|المجال",loadf:"Voir les filières de mon pays|See the programmes in my country|Направления в моей стране|查看我国的专业|Ülkemdeki bölümler|عرض التخصصات في بلدي",other:"Autre filière…|Other field…|Другое направление…|其他专业…|Başka bölüm…|تخصص آخر…",loadingf:"Chargement…|Loading…|Загрузка…|加载中…|Yükleniyor…|جارٍ التحميل…",play:"Écouter|Listen|Слушать|朗读|Dinle|استمع",
+forgot:"Mot de passe oublié ?|Forgot password?|Забыли пароль?|忘记密码？|Şifreni mi unuttun?|نسيت كلمة المرور؟",sent:"Un e-mail t'a été envoyé pour changer ton mot de passe.|We sent you an e-mail to reset your password.|Мы отправили письмо для смены пароля.|已发送重置密码邮件。|Şifreni değiştirmek için e-posta gönderdik.|أرسلنا إليك بريدًا إلكترونيًا لتغيير كلمة المرور.",newpw:"Nouveau mot de passe (8 caractères minimum)|New password (8 characters minimum)|Новый пароль (минимум 8 символов)|新密码（至少 8 个字符）|Yeni şifre (en az 8 karakter)|كلمة مرور جديدة (8 أحرف على الأقل)",savepw:"Enregistrer|Save|Сохранить|保存|Kaydet|حفظ",pwdone:"Mot de passe changé. Tu peux te connecter.|Password changed. You can log in now.|Пароль изменён. Теперь можно войти.|密码已更改，现在可以登录。|Şifre değiştirildi. Artık giriş yapabilirsin.|تم تغيير كلمة المرور. يمكنك تسجيل الدخول.",needmail:"Écris d'abord ton e-mail ci-dessus.|Enter your e-mail above first.|Сначала введи e-mail выше.|请先在上方输入邮箱。|Önce yukarıya e-postanı yaz.|اكتب بريدك الإلكتروني أعلاه أولًا.",
+edit:"Modifier mon profil|Edit my profile|Изменить профиль|修改资料|Profili düzenle|تعديل ملفي"};
 /* ===== MATIÈRES PAR NIVEAU (primaire, collège, lycée, université/doctorat) ===== */
 const SUBJ=[
-["Lecture & langue|Reading & language|Чтение и язык|阅读与语文|Okuma ve dil","Mathématiques|Mathematics|Математика|数学|Matematik","Sciences & éveil|Science & discovery|Природоведение|科学常识|Fen ve keşif","Histoire-Géographie|History & Geography|История и география|历史与地理|Tarih ve Coğrafya","Éducation civique|Civics|Гражданское воспитание|公民教育|Yurttaşlık","Langues étrangères|Foreign languages|Иностранные языки|外语|Yabancı diller"],
-["Langue & littérature|Language & literature|Язык и литература|语言与文学|Dil ve edebiyat","Mathématiques|Mathematics|Математика|数学|Matematik","Physique-Chimie|Physics & Chemistry|Физика и химия|物理与化学|Fizik-Kimya","SVT / Biologie|Biology & Earth science|Биология|生物|Biyoloji","Histoire-Géographie|History & Geography|История и география|历史与地理|Tarih ve Coğrafya","Langues étrangères|Foreign languages|Иностранные языки|外语|Yabancı diller","Informatique|Computing|Информатика|信息技术|Bilişim","Éducation civique|Civics|Гражданское воспитание|公民教育|Yurttaşlık"],
-["Mathématiques|Mathematics|Математика|数学|Matematik","Physique-Chimie|Physics & Chemistry|Физика и химия|物理与化学|Fizik-Kimya","SVT / Biologie|Biology & Earth science|Биология|生物|Biyoloji","Littérature|Literature|Литература|文学|Edebiyat","Philosophie|Philosophy|Философия|哲学|Felsefe","Histoire-Géographie|History & Geography|История и география|历史与地理|Tarih ve Coğrafya","Langues étrangères|Foreign languages|Иностранные языки|外语|Yabancı diller","Informatique|Computing|Информатика|信息技术|Bilişim","Économie|Economics|Экономика|经济学|Ekonomi","Comptabilité & gestion|Accounting & management|Бухучёт и управление|会计与管理|Muhasebe ve yönetim"],
-["Médecine & santé|Medicine & health|Медицина и здоровье|医学与健康|Tıp ve sağlık","Droit|Law|Право|法律|Hukuk","Économie & gestion|Economics & management|Экономика и менеджмент|经济与管理|Ekonomi ve yönetim","Informatique & IA|Computer science & AI|Информатика и ИИ|计算机与人工智能|Bilgisayar ve YZ","Ingénierie|Engineering|Инженерия|工程|Mühendislik","Sciences|Sciences|Естественные науки|理学|Fen bilimleri","Lettres & langues|Literature & languages|Филология и языки|文学与语言|Edebiyat ve diller","Relations internationales & politique|International relations & politics|Международные отношения и политика|国际关系与政治|Uluslararası ilişkiler ve siyaset","Agronomie & élevage|Agriculture & animal science|Агрономия и животноводство|农学与畜牧|Ziraat ve hayvancılık","Éducation|Education|Педагогика|教育学|Eğitim","Sciences sociales|Social sciences|Социальные науки|社会科学|Sosyal bilimler","Arts & communication|Arts & communication|Искусство и коммуникации|艺术与传播|Sanat ve iletişim"]];
+["Lecture & langue|Reading & language|Чтение и язык|阅读与语文|Okuma ve dil|القراءة واللغة","Mathématiques|Mathematics|Математика|数学|Matematik|الرياضيات","Sciences & éveil|Science & discovery|Природоведение|科学常识|Fen ve keşif|العلوم والتفتّح","Histoire-Géographie|History & Geography|История и география|历史与地理|Tarih ve Coğrafya|التاريخ والجغرافيا","Éducation civique|Civics|Гражданское воспитание|公民教育|Yurttaşlık|التربية المدنية","Langues étrangères|Foreign languages|Иностранные языки|外语|Yabancı diller|اللغات الأجنبية"],
+["Langue & littérature|Language & literature|Язык и литература|语言与文学|Dil ve edebiyat|اللغة والأدب","Mathématiques|Mathematics|Математика|数学|Matematik|الرياضيات","Physique-Chimie|Physics & Chemistry|Физика и химия|物理与化学|Fizik-Kimya|الفيزياء والكيمياء","SVT / Biologie|Biology & Earth science|Биология|生物|Biyoloji|علوم الحياة والأرض / الأحياء","Histoire-Géographie|History & Geography|История и география|历史与地理|Tarih ve Coğrafya|التاريخ والجغرافيا","Langues étrangères|Foreign languages|Иностранные языки|外语|Yabancı diller|اللغات الأجنبية","Informatique|Computing|Информатика|信息技术|Bilişim|المعلوميات","Éducation civique|Civics|Гражданское воспитание|公民教育|Yurttaşlık|التربية المدنية"],
+["Mathématiques|Mathematics|Математика|数学|Matematik|الرياضيات","Physique-Chimie|Physics & Chemistry|Физика и химия|物理与化学|Fizik-Kimya|الفيزياء والكيمياء","SVT / Biologie|Biology & Earth science|Биология|生物|Biyoloji|علوم الحياة والأرض / الأحياء","Littérature|Literature|Литература|文学|Edebiyat|الأدب","Philosophie|Philosophy|Философия|哲学|Felsefe|الفلسفة","Histoire-Géographie|History & Geography|История и география|历史与地理|Tarih ve Coğrafya|التاريخ والجغرافيا","Langues étrangères|Foreign languages|Иностранные языки|外语|Yabancı diller|اللغات الأجنبية","Informatique|Computing|Информатика|信息技术|Bilişim|المعلوميات","Économie|Economics|Экономика|经济学|Ekonomi|الاقتصاد","Comptabilité & gestion|Accounting & management|Бухучёт и управление|会计与管理|Muhasebe ve yönetim|المحاسبة والتسيير"],
+["Médecine & santé|Medicine & health|Медицина и здоровье|医学与健康|Tıp ve sağlık|الطب والصحة","Droit|Law|Право|法律|Hukuk|القانون","Économie & gestion|Economics & management|Экономика и менеджмент|经济与管理|Ekonomi ve yönetim|الاقتصاد والتسيير","Informatique & IA|Computer science & AI|Информатика и ИИ|计算机与人工智能|Bilgisayar ve YZ|الإعلاميات والذكاء الاصطناعي","Ingénierie|Engineering|Инженерия|工程|Mühendislik|الهندسة","Sciences|Sciences|Естественные науки|理学|Fen bilimleri|العلوم","Lettres & langues|Literature & languages|Филология и языки|文学与语言|Edebiyat ve diller|الآداب واللغات","Relations internationales & politique|International relations & politics|Международные отношения и политика|国际关系与政治|Uluslararası ilişkiler ve siyaset|العلاقات الدولية والسياسة","Agronomie & élevage|Agriculture & animal science|Агрономия и животноводство|农学与畜牧|Ziraat ve hayvancılık|الزراعة وتربية الماشية","Éducation|Education|Педагогика|教育学|Eğitim|التربية","Sciences sociales|Social sciences|Социальные науки|社会科学|Sosyal bilimler|العلوم الاجتماعية","Arts & communication|Arts & communication|Искусство и коммуникации|艺术与传播|Sanat ve iletişim|الفنون والتواصل"]];
 const SI=["📖","➗","🧪","🧬","🌍","🗣️","💻","⚖️","📈","🧾","🎓","🔭"];
 const FRC="TD CM NE CF GA CG CD BI SN ML BF CI TG BJ GN DJ MG FR BE CH MA DZ TN LB".split(" "),ENC="NG GH KE UG TZ ZM ZW NA BW ZA GB US IN MU".split(" ");
 const GR=[[["CP1","CP2","CE1","CE2","CM1","CM2"],["6e","5e","4e","3e"],["2nde","1ère","Terminale"],["L1","L2","L3","M1","M2"],["PhD"]],
@@ -313,20 +343,35 @@ const GR=[[["CP1","CP2","CE1","CE2","CM1","CM2"],["6e","5e","4e","3e"],["2nde","
 [["1","2","3","4","5","6"],["7","8","9"],["10","11","12"],["1","2","3","4","5"],["PhD"]]];
 
 const $=id=>document.getElementById(id);
-let lang="fr",tab="prof",token=null,profile={},ctx={subj:"",mode:"learn"},att=null,lastQ="",st={ts:[],days:[],pts:0};
-try{lang=localStorage.getItem("cm_lang")||"fr";profile=JSON.parse(localStorage.getItem("cm_prof")||"{}");token=sessionStorage.getItem("cm_tok");Object.assign(st,JSON.parse(localStorage.getItem("cm_st")||"{}"))}catch(e){}
+let lang="fr",tab="prof",token=null,rtok=null,profile={},ctx={subj:"",mode:"learn"},att=null,lastQ="",st={ts:[],days:[],pts:0};
+try{lang=localStorage.getItem("cm_lang")||"fr";profile=JSON.parse(localStorage.getItem("cm_prof")||"{}");token=localStorage.getItem("cm_tok")||sessionStorage.getItem("cm_tok");rtok=localStorage.getItem("cm_rt");Object.assign(st,JSON.parse(localStorage.getItem("cm_st")||"{}"))}catch(e){}
 if(!T[lang])lang="fr";
 const ok=()=>SUPABASE_URL&&SUPABASE_ANON_KEY,t=()=>T[lang],L=k=>T2[k].split("|")[LI[lang]||0];
 const H=()=>({"Content-Type":"application/json",apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+(token||SUPABASE_ANON_KEY)});
-const LANGS=[["fr","🇫🇷 Français"],["en","🇬🇧 English"],["ru","🇷🇺 Русский"],["zh","🇨🇳 中文"],["tr","🇹🇷 Türkçe"]];
+const LANGS=[["fr","🇫🇷 Français"],["en","🇬🇧 English"],["ru","🇷🇺 Русский"],["zh","🇨🇳 中文"],["tr","🇹🇷 Türkçe"],["ar","🌍 العربية"]];
 const fam=()=>FRC.includes(profile.country)?0:ENC.includes(profile.country)?1:2;
 const grades=()=>GR[fam()][profile.level||0];
 const subjects=()=>SUBJ[Math.min(profile.level||0,3)].map(s=>s.split("|")[LI[lang]||0]);
 const flag=c=>c?String.fromCodePoint(...[...c].map(ch=>127397+ch.charCodeAt())):"🌍";
-const saveSt=()=>{try{localStorage.setItem("cm_st",JSON.stringify(st))}catch(e){}};
-const saveP=()=>{try{localStorage.setItem("cm_prof",JSON.stringify(profile))}catch(e){}};
+const saveSt=()=>{try{localStorage.setItem("cm_st",JSON.stringify(st))}catch(e){}cloudSoon()};
+const saveP=()=>{try{localStorage.setItem("cm_prof",JSON.stringify(profile))}catch(e){}cloudSoon()};
+const expired=()=>{const e=+localStorage.getItem("cm_exp")||0;return e&&Date.now()>e};
+function setSession(d){token=d.access_token;rtok=d.refresh_token||rtok;try{localStorage.setItem("cm_tok",token);if(rtok)localStorage.setItem("cm_rt",rtok);localStorage.setItem("cm_exp",String(Date.now()+(d.expires_in||3600)*1000-6e4))}catch(e){}}
+function clearSession(){token=rtok=null;try{["cm_tok","cm_rt","cm_exp"].forEach(k=>localStorage.removeItem(k));sessionStorage.removeItem("cm_tok")}catch(e){}}
+async function refreshSession(){
+  if(!rtok)return false;
+  try{const r=await fetch(SUPABASE_URL+"/auth/v1/token?grant_type=refresh_token",{method:"POST",headers:{"Content-Type":"application/json",apikey:SUPABASE_ANON_KEY},body:JSON.stringify({refresh_token:rtok})});const d=await r.json();if(d.access_token){setSession(d);return true}if(r.status===400||r.status===401)clearSession()}catch(e){}
+  return false}
+let cloudT=null;const cloudSoon=()=>{if(!token||!ok())return;clearTimeout(cloudT);cloudT=setTimeout(saveProfile,2500)};
+async function loadCloud(force){
+  try{const r=await fetch(SUPABASE_URL+"/auth/v1/user",{headers:H()});if(!r.ok)return;const u=await r.json(),c=u.user_metadata&&u.user_metadata.cm;if(!c)return;
+    if(c.profile&&(force||!profile.country))Object.assign(profile,c.profile);
+    if(c.st&&(c.st.pts||0)>=(st.pts||0))Object.assign(st,c.st);
+    localStorage.setItem("cm_prof",JSON.stringify(profile));localStorage.setItem("cm_st",JSON.stringify(st))}catch(e){}}
 const weekN=()=>st.ts.filter(x=>Date.now()-x<6048e5).length;
-function addLesson(){const d=new Date().toISOString().slice(0,10);st.ts.push(Date.now());st.ts=st.ts.slice(-200);if(!st.days.includes(d))st.days.push(d);st.pts+=10;saveSt()}
+const todayN=()=>st.ts.filter(x=>new Date(x).toDateString()===new Date().toDateString()).length;
+let bonusMsg=false;
+function addLesson(){const d=new Date().toISOString().slice(0,10);st.ts.push(Date.now());st.ts=st.ts.slice(-200);if(!st.days.includes(d))st.days.push(d);st.pts+=10;if(todayN()>=3&&st.bonus!==d){st.pts+=30;st.bonus=d;bonusMsg=true}saveSt()}
 
 function show(id){document.querySelectorAll(".scr").forEach(s=>s.classList.toggle("on",s.id===id));window.scrollTo(0,0)}
 function fill(sel,items){const v=sel.value;sel.innerHTML="";items.forEach(([a,b])=>{const o=document.createElement("option");o.value=a;o.textContent=b;sel.appendChild(o)});if(v)sel.value=v}
@@ -336,10 +381,10 @@ function mk(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=
 function card(ic,title,desc,fn,lead){const b=mk("button","card"+(lead?" lead":""));b.append(mk("span","ic",ic),mk("strong","",title));if(desc)b.append(mk("small","",desc));b.onclick=fn;return b}
 
 function render(){
-  const x=t();document.documentElement.lang=lang;
+  const x=t();document.documentElement.lang=lang;document.documentElement.dir=lang==="ar"?"rtl":"ltr";
   chips($("langChips"),LANGS,lang,setLang);
   $("hWelcome").textContent=x.welcome;$("hIntro").textContent=x.intro;$("start").textContent=x.start;
-  $("adLbl").textContent=x.ad;drawAd($("adSlot"),true);
+  $("adLbl").textContent=x.ad;drawAd($("adSlot"),true);drawAd($("adBar"));
   /* profil */
   $("hProf").textContent=x.hProf;$("lblName").textContent=L("name");$("lblCountry").textContent=x.country;$("lblLevel").textContent=x.level;$("lblGrade").textContent=L("cls");$("profNext").textContent=x.next;
   $("pname").value=$("pname").value||profile.name||"";
@@ -350,8 +395,8 @@ function render(){
   $("hAcc").textContent=x.hAcc;$("forgot").textContent=L("forgot");$("hReset").textContent="🔑 "+L("forgot");$("lblNew").textContent=L("newpw");$("savepw").textContent=L("savepw");$("lblEmail").textContent=x.email;$("lblPass").textContent=x.pass;$("signup").textContent=x.signup;$("login").textContent=x.login;
   /* en-tête */
   const av=$("av");av.innerHTML="";if(profile.photo){const i=mk("img");i.src=profile.photo;i.alt="";av.appendChild(i)}else av.textContent=(profile.name||"?").charAt(0).toUpperCase();
-  $("hiName").textContent=L("hello")+" "+(profile.name||"");$("hiSub").textContent=(profile.grade?profile.grade+" · ":"")+x.lv[profile.level||0];
-  $("flag").textContent=flag(profile.country);$("langTag").textContent=lang.toUpperCase()+" ";$("onl").textContent=L("online");
+  $("hiName").textContent=L("hello")+" "+(profile.name||"");$("hiSub").textContent=(profile.grade?profile.grade+" · ":"")+x.lv[profile.level||0]+" · "+L("lvl")+" "+(Math.floor(st.pts/100)+1);
+  $("flag").textContent=flag(profile.country);$("langTag").textContent=lang.toUpperCase()+" ";$("onl").textContent=navigator.onLine?L("online"):L("offl");
   $("pb").style.width=Math.min(100,weekN()/12*100)+"%";$("pbt").textContent=weekN()+" / 12 "+L("week")+" — "+L("keep");
   /* barre flottante */
   const nb=$("fbar");nb.innerHTML="";
@@ -373,7 +418,9 @@ function drawHome(){
   (new Date().getHours()<14?subs.slice(0,2):[L("rev"),L("diss")]).forEach(s=>{const b=mk("button","chip",s);b.onclick=()=>openChat(s,"learn");c2.appendChild(b)});z2.append(c2);
   const z3=mk("div","zone");z3.append(mk("h3","","🎯 "+L("z3")));const c3=mk("div","chips");z3.append(c3);
   chips(c3,[0,1,2,3].map(i=>[i,L("g"+i)]),profile.goal,v=>{profile.goal=+v;saveP();render()});
-  const zf=mk("div","zone");drawFiliere(zf);z.append(z1,zf,z2,z3);
+  const zf=mk("div","zone");drawFiliere(zf);
+  const zd=mk("div","zone");zd.append(mk("h3","","🔥 "+L("daily")),mk("p","mute",Math.min(3,todayN())+" / 3 "+L("les")));const br=mk("div","bar"),bi=mk("i");bi.style.width=Math.min(100,todayN()/3*100)+"%";br.append(bi);zd.append(br);
+  z.append(z1,zd,zf,z2,z3);
 }
 function drawLearn(){
   const g=$("subjGrid");g.innerHTML="";drawFiliere($("filBox2"));if(profile.filiere)g.appendChild(card("🧭",profile.filiere,L("prog"),()=>openChat(profile.filiere,"learn"),true));$("hLearn").textContent=L("nLearn")+" · "+(profile.grade||"");$("progNote").textContent=L("notice");
@@ -385,14 +432,15 @@ function drawProg(){
   const b=$("progBox");b.innerHTML="";const d=st.days.length;
   const s=mk("div","zone stat");[[weekN(),L("les")],[d,L("streak")],[st.pts,L("pts")]].forEach(([n,l])=>{const c=mk("div");c.append(mk("b","",n),mk("small","",l));s.appendChild(c)});
   const bd=mk("div","zone");const r=mk("div","bdg");
-  [["🌱",st.ts.length>=1],["📚",st.ts.length>=5],["🔥",d>=3],["🏆",st.pts>=100]].forEach(([e,on])=>r.appendChild(mk("span",on?"":"off",e)));bd.append(r);
+  [["🌱",st.ts.length>=1],["📚",st.ts.length>=5],["🔥",d>=3],["🏆",st.pts>=100],["⭐",st.pts>=300],["🚀",d>=7],["👑",st.pts>=1000]].forEach(([e,on])=>r.appendChild(mk("span",on?"":"off",e)));bd.append(r);
   b.append(s,bd);
 }
 function drawMore(){
   const b=$("moreBox");b.innerHTML="";const z=mk("div","zone");z.append(mk("h3","","🌐 "+t().lang));const c=mk("div","chips");z.append(c);chips(c,LANGS,lang,setLang);
   const e=mk("button","btn alt full",L("edit"));e.onclick=()=>{$("pname").value=profile.name||"";show("prof")};
-  const o=mk("button","btn alt full",t().out);o.onclick=()=>{token=null;try{sessionStorage.removeItem("cm_tok")}catch(x){}show("home")};
-  b.append(z,mk("p","note",L("parents")),e,o);
+  const o=mk("button","btn alt full",t().out);o.onclick=async()=>{const on=navigator.onLine;await saveProfile();clearSession();if(on){try{["cm_prof","cm_st","cm_last","cm_hist_ai","cm_hist_uni"].forEach(k=>localStorage.removeItem(k))}catch(x){}profile={};st={ts:[],days:[],pts:0};$("pname").value=""}render();show("home")};
+  const sh=mk("button","btn alt full","📲 "+L("invite"));sh.onclick=()=>{const u="https://cerveau-malin.github.io",tx=L("shareTxt");if(navigator.share)navigator.share({title:"Cerveau Malin",text:tx,url:u}).catch(()=>{});else window.open("https://wa.me/?text="+encodeURIComponent(tx+" "+u),"_blank","noopener")};
+  b.append(z,mk("p","note",L("parents")),sh,e,o);
 }
 function drawGrantsView(){
   const x=t();$("gTitle").textContent=x.tabs[3];$("gs").placeholder=x.gs;$("gnote").textContent=x.gnote;
@@ -408,16 +456,19 @@ function drawGrants(){
 }
 
 /* ===== FILIÈRES SELON LE PAYS ===== */
-const VL={fr:"fr-FR",en:"en-US",ru:"ru-RU",zh:"zh-CN",tr:"tr-TR"};
+const VL={fr:"fr-FR",en:"en-US",ru:"ru-RU",zh:"zh-CN",tr:"tr-TR",ar:"ar-SA"};
 const filKey=()=>"cm_fil_"+[profile.country,profile.level,profile.domain,lang].join("_");
 function getFil(){try{return JSON.parse(localStorage.getItem(filKey())||"null")}catch(e){return null}}
 function speak(s){try{if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(s);u.lang=VL[lang];speechSynthesis.speak(u)}catch(e){}}
+/* ===== FILIÈRES INTÉGRÉES : 12 domaines x 6 langues (fr|en|ru|zh|tr|ar) ===== */
+const FILS=[["Médecine générale|General medicine|Лечебное дело|临床医学|Genel tıp|الطب العام","Pharmacie|Pharmacy|Фармация|药学|Eczacılık|الصيدلة","Soins infirmiers|Nursing|Сестринское дело|护理学|Hemşirelik|التمريض","Chirurgie dentaire|Dentistry|Стоматология|口腔医学|Diş hekimliği|طب الأسنان","Santé publique|Public health|Общественное здравоохранение|公共卫生|Halk sağlığı|الصحة العامة","Sage-femme|Midwifery|Акушерство|助产学|Ebelik|القبالة"],["Droit privé|Private law|Частное право|私法|Özel hukuk|القانون الخاص","Droit public|Public law|Публичное право|公法|Kamu hukuku|القانون العام","Droit des affaires|Business law|Предпринимательское право|商法|Ticaret hukuku|قانون الأعمال","Droit international|International law|Международное право|国际法|Uluslararası hukuk|القانون الدولي","Sciences politiques|Political science|Политология|政治学|Siyaset bilimi|العلوم السياسية","Criminologie|Criminology|Криминология|犯罪学|Kriminoloji|علم الإجرام"],["Économie|Economics|Экономика|经济学|Ekonomi|الاقتصاد","Gestion des entreprises|Business administration|Менеджмент|工商管理|İşletme|إدارة الأعمال","Comptabilité et finance|Accounting and finance|Бухгалтерия и финансы|会计与金融|Muhasebe ve finans|المحاسبة والمالية","Marketing|Marketing|Маркетинг|市场营销|Pazarlama|التسويق","Commerce international|International trade|Международная торговля|国际贸易|Uluslararası ticaret|التجارة الدولية","Banque et assurance|Banking and insurance|Банки и страхование|银行与保险|Bankacılık ve sigorta|المصارف والتأمين"],["Génie logiciel|Software engineering|Программная инженерия|软件工程|Yazılım mühendisliği|هندسة البرمجيات","Intelligence artificielle|Artificial intelligence|Искусственный интеллект|人工智能|Yapay zekâ|الذكاء الاصطناعي","Cybersécurité|Cybersecurity|Кибербезопасность|网络安全|Siber güvenlik|الأمن السيبراني","Réseaux et télécoms|Networks and telecoms|Сети и телекоммуникации|网络与通信|Ağlar ve telekom|الشبكات والاتصالات","Science des données|Data science|Наука о данных|数据科学|Veri bilimi|علم البيانات","Systèmes d'information|Information systems|Информационные системы|信息系统|Bilgi sistemleri|نظم المعلومات"],["Génie civil|Civil engineering|Гражданское строительство|土木工程|İnşaat mühendisliği|الهندسة المدنية","Génie électrique|Electrical engineering|Электротехника|电气工程|Elektrik mühendisliği|الهندسة الكهربائية","Génie mécanique|Mechanical engineering|Машиностроение|机械工程|Makine mühendisliği|الهندسة الميكانيكية","Génie pétrolier|Petroleum engineering|Нефтяная инженерия|石油工程|Petrol mühendisliği|هندسة البترول","Génie chimique|Chemical engineering|Химическая инженерия|化学工程|Kimya mühendisliği|الهندسة الكيميائية","Architecture|Architecture|Архитектура|建筑学|Mimarlık|الهندسة المعمارية"],["Mathématiques|Mathematics|Математика|数学|Matematik|الرياضيات","Physique|Physics|Физика|物理学|Fizik|الفيزياء","Chimie|Chemistry|Химия|化学|Kimya|الكيمياء","Biologie|Biology|Биология|生物学|Biyoloji|علم الأحياء","Géologie|Geology|Геология|地质学|Jeoloji|الجيولوجيا","Environnement|Environmental science|Экология|环境科学|Çevre bilimi|علوم البيئة"],["Lettres modernes|Literature|Литература|文学|Edebiyat|الأدب","Langue et littérature arabes|Arabic language and literature|Арабский язык и литература|阿拉伯语言文学|Arap dili ve edebiyatı|اللغة العربية وآدابها","Anglais|English studies|Английский язык|英语|İngilizce|اللغة الإنجليزية","Traduction et interprétation|Translation and interpreting|Перевод|翻译|Çeviribilim|الترجمة","Linguistique|Linguistics|Лингвистика|语言学|Dilbilim|اللسانيات","Chinois|Chinese studies|Китайский язык|汉语|Çince|اللغة الصينية"],["Relations internationales|International relations|Международные отношения|国际关系|Uluslararası ilişkiler|العلاقات الدولية","Diplomatie|Diplomacy|Дипломатия|外交学|Diplomasi|الدبلوماسية","Administration publique|Public administration|Государственное управление|公共管理|Kamu yönetimi|الإدارة العامة","Études de sécurité|Security studies|Исследования безопасности|安全研究|Güvenlik çalışmaları|الدراسات الأمنية","Développement international|International development|Международное развитие|国际发展|Uluslararası kalkınma|التنمية الدولية","Action humanitaire|Humanitarian action|Гуманитарная деятельность|人道主义行动|İnsani yardım|العمل الإنساني"],["Agronomie|Agronomy|Агрономия|农学|Ziraat|الزراعة","Élevage|Animal husbandry|Животноводство|畜牧学|Hayvancılık|تربية الماشية","Médecine vétérinaire|Veterinary medicine|Ветеринария|兽医学|Veterinerlik|الطب البيطري","Eaux et forêts|Forestry and water|Лесное и водное хозяйство|林业与水利|Ormancılık ve su|المياه والغابات","Agroalimentaire|Food processing|Пищевая промышленность|食品加工|Gıda işleme|الصناعات الغذائية","Pêche et aquaculture|Fisheries and aquaculture|Рыбное хозяйство|渔业与水产养殖|Su ürünleri|الصيد وتربية الأحياء المائية"],["Sciences de l'éducation|Education sciences|Педагогика|教育学|Eğitim bilimleri|علوم التربية","Enseignement primaire|Primary teaching|Начальное образование|小学教育|Sınıf öğretmenliği|التعليم الابتدائي","Enseignement secondaire|Secondary teaching|Среднее образование|中学教育|Ortaöğretim öğretmenliği|التعليم الثانوي","Psychologie|Psychology|Психология|心理学|Psikoloji|علم النفس","Orientation et conseil|Guidance and counseling|Консультирование|教育咨询|Rehberlik|التوجيه والإرشاد","Éducation spécialisée|Special education|Специальное образование|特殊教育|Özel eğitim|التربية الخاصة"],["Sociologie|Sociology|Социология|社会学|Sosyoloji|علم الاجتماع","Anthropologie|Anthropology|Антропология|人类学|Antropoloji|الأنثروبولوجيا","Histoire|History|История|历史学|Tarih|التاريخ","Géographie|Geography|География|地理学|Coğrafya|الجغرافيا","Philosophie|Philosophy|Философия|哲学|Felsefe|الفلسفة","Travail social|Social work|Социальная работа|社会工作|Sosyal hizmet|الخدمة الاجتماعية"],["Journalisme|Journalism|Журналистика|新闻学|Gazetecilik|الصحافة","Communication|Communication|Коммуникации|传播学|İletişim|الاتصال","Arts plastiques|Fine arts|Изобразительное искусство|美术|Güzel sanatlar|الفنون التشكيلية","Musique|Music|Музыка|音乐|Müzik|الموسيقى","Cinéma et audiovisuel|Film and media|Кино и медиа|影视传媒|Sinema ve medya|السينما والإعلام","Design graphique|Graphic design|Графический дизайн|平面设计|Grafik tasarım|التصميم الغرافيكي"]];
+const fils=d=>(FILS[d]||[]).map(x=>x.split("|")[LI[lang]||0]);
 function drawFiliere(box){
   box.innerHTML="";const lv=profile.level||0;box.hidden=lv<2;if(lv<2)return;
   box.append(mk("h3","","🧭 "+L("fil")+(profile.filiere?" : "+profile.filiere:"")));
   if(lv>=3){const c=mk("div","chips");box.append(mk("small","mute",L("dom")),c);chips(c,subjects().map((s,i)=>[i,s]),profile.domain,v=>{profile.domain=+v;profile.filiere=undefined;saveP();render()})}
   const b=mk("button","btn sm",L("loadf"));b.style.margin="12px 0";b.onclick=()=>{b.textContent=L("loadingf");b.disabled=true;loadFil()};box.append(b);
-  const l=getFil();if(l){const c2=mk("div","chips");c2.style.marginBottom="10px";box.append(c2);chips(c2,l.map(f=>[f,f]),profile.filiere,v=>{profile.filiere=v;saveP();render()})}
+  const base=lv>=3&&profile.domain!==undefined?fils(profile.domain):[];const l=[...base,...(getFil()||[]).filter(x=>!base.includes(x))];if(l.length){const c2=mk("div","chips");c2.style.marginBottom="10px";box.append(c2);chips(c2,l.map(f=>[f,f]),profile.filiere,v=>{profile.filiere=v;saveP();render()})}
   const i=mk("input");i.placeholder=L("other");i.onchange=()=>{if(i.value.trim()){profile.filiere=i.value.trim();saveP();render()}};box.append(i);
 }
 async function loadFil(){
@@ -438,18 +489,23 @@ async function loadFil(){
 }
 
 /* ===== ASSISTANT IA ===== */
+const getH=m=>{try{return JSON.parse(localStorage.getItem("cm_hist_"+m)||"[]")}catch(e){return[]}};
+function pushH(m,q,d){if(m!=="ai"&&m!=="uni")return;const h=getH(m);h.push({r:"u",t:String(q).slice(0,500)},{r:"a",t:String(d.answer||(d.blocks&&d.blocks.idea)||"").slice(0,700)});try{localStorage.setItem("cm_hist_"+m,JSON.stringify(h.slice(-20)))}catch(e){}}
+function ctxQ(m,q){if(m!=="ai"&&m!=="uni")return q;const h=getH(m).slice(-6);if(!h.length)return q;return "Conversation précédente :\n"+h.map(x=>(x.r==="u"?"Élève : ":"IA : ")+x.t).join("\n")+"\n\nNouvelle question : "+q}
+const getCache=k=>{try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}};
+function putCache(k,d){try{const l=JSON.parse(localStorage.getItem("cm_clist")||"[]").filter(x=>x!==k);l.push(k);while(l.length>25)localStorage.removeItem(l.shift());localStorage.setItem(k,JSON.stringify(d));localStorage.setItem("cm_clist",JSON.stringify(l))}catch(e){}}
 function say(s,who){const p=mk("p","m "+who,s);$("log").appendChild(p);$("log").scrollTop=$("log").scrollHeight;return p}
 function openChat(subj,mode,pre){
   ctx={subj,mode};$("chat").hidden=false;$("cTitle").textContent=subj||t().tabs[5];$("cProg").hidden=mode==="ai"||mode==="uni";
-  if(!$("log").children.length)say(L("listen"),"a");
+  if(!$("log").children.length){say(L("listen"),"a");if(mode==="ai"||mode==="uni")getH(mode).slice(-6).forEach(x=>say(x.t,x.r))}
   if(pre)ask(mode,pre);
 }
 function blocks(b,q){
   const c=mk("div"),sec=(ic,ti,tx)=>{const s=mk("div","bl");s.append(mk("h4","",ic+" "+ti),mk("p","",tx));return s};
   const ex=sec("✏️",L("b3"),b.exercise||""),inp=mk("input");inp.placeholder=L("yourans");inp.style.margin="10px 0";
   const v=mk("button","btn sm",L("verify"));v.onclick=()=>{if(inp.value.trim())ask("check","Exercice: "+b.exercise+"\nRéponse: "+inp.value,false)};
-  const a=mk("button","btn alt sm",L("again"));a.style.marginLeft="8px";a.onclick=()=>ask("again",q,false);
-  const sp=mk("button","btn alt sm","🔊");sp.setAttribute("aria-label",L("play"));sp.style.marginLeft="8px";sp.onclick=()=>speak((b.idea||"")+". "+(b.steps||""));ex.append(inp,v,a,sp);c.append(sec("💡",L("b1"),b.idea||""),sec("🧩",L("b2"),b.steps||""),ex);
+  const a=mk("button","btn alt sm",L("again"));a.style.marginInlineStart="8px";a.onclick=()=>ask("again",q,false);
+  const sp=mk("button","btn alt sm","🔊");sp.setAttribute("aria-label",L("play"));sp.style.marginInlineStart="8px";sp.onclick=()=>speak((b.idea||"")+". "+(b.steps||""));ex.append(inp,v,a,sp);c.append(sec("💡",L("b1"),b.idea||""),sec("🧩",L("b2"),b.steps||""),ex);
   $("log").appendChild(c);$("log").scrollTop=$("log").scrollHeight;
 }
 async function ask(mode,text,showUser){
@@ -457,15 +513,21 @@ async function ask(mode,text,showUser){
   if(showUser!==false)say((att?"📎 ":"")+(q||L("uploaded")),"u");
   if(text===undefined)$("q").value="";
   if(!ok()){say(t().demo,"a");return}
+  if(!token){$("chat").hidden=true;show("acc");return}
+  const cKey="cm_c_"+mode+"|"+ctx.subj+"|"+q;
+  if(!navigator.onLine){const c=!att&&getCache(cKey);if(c){if(c.blocks)blocks(c.blocks,q);else say(c.answer||"","a")}else say(L("offline"),"a");return}
+  if(token&&expired())await refreshSession();
   const w=say("…","a"),f=att;att=null;$("attach").hidden=true;$("send").disabled=true;
   try{
-    const r=await fetch(SUPABASE_URL+"/functions/v1/ask-ai",{method:"POST",headers:H(),body:JSON.stringify({question:q||L("uploaded"),mode,subject:ctx.subj,country:cname(profile.country),grade:profile.grade||"",level:t().lv[profile.level||0],goal:profile.goal!==undefined?L("g"+profile.goal):"",filiere:profile.filiere||"",lang,file:f})});
+    const r=await fetch(SUPABASE_URL+"/functions/v1/ask-ai",{method:"POST",headers:H(),body:JSON.stringify({question:ctxQ(mode,q||L("uploaded")),history:getH(mode).slice(-6),mode,subject:ctx.subj,country:cname(profile.country),grade:profile.grade||"",level:t().lv[profile.level||0],goal:profile.goal!==undefined?L("g"+profile.goal):"",filiere:profile.filiere||"",lang,file:f})});
     const d=await r.json();w.remove();
     if(r.status===429||d.error==="daily_limit")say(t().limit,"a");
     else if(!r.ok)say(t().err,"a");
     else{
       if(mode==="learn"||mode==="again"){if(mode==="learn")lastQ=q;try{localStorage.setItem("cm_last",JSON.stringify({s:ctx.subj,q:lastQ||q}))}catch(e){}addLesson()}
       if(d.blocks)blocks(d.blocks,lastQ||q);else say(d.answer||"","a");
+      if(!f&&mode!=="check"&&mode!=="program"&&mode!=="filieres")putCache(cKey,d);pushH(mode,q,d);
+      if(bonusMsg){bonusMsg=false;say(L("dailyDone"),"a")}
       if(mode==="check"&&String(d.answer).startsWith("✅")){st.pts+=20;saveSt()}
     }
   }catch(e){w.remove();say(t().err,"a")}
@@ -482,7 +544,7 @@ async function pick(f){
 }
 function mic(){
   const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){say(L("nomic"),"a");return}
-  try{const r=new R();r.lang={fr:"fr-FR",en:"en-US",ru:"ru-RU",zh:"zh-CN",tr:"tr-TR"}[lang];r.onresult=e=>{$("q").value=e.results[0][0].transcript};r.onerror=()=>say(L("nomic"),"a");r.start()}catch(e){say(L("nomic"),"a")}
+  try{const r=new R();r.lang={fr:"fr-FR",en:"en-US",ru:"ru-RU",zh:"zh-CN",tr:"tr-TR",ar:"ar-SA"}[lang];r.onresult=e=>{$("q").value=e.results[0][0].transcript};r.onerror=()=>say(L("nomic"),"a");r.start()}catch(e){say(L("nomic"),"a")}
 }
 
 /* ===== COMPTE ===== */
@@ -493,13 +555,15 @@ async function auth(kind){
   try{
     const r=await fetch(SUPABASE_URL+(kind==="signup"?"/auth/v1/signup":"/auth/v1/token?grant_type=password"),{method:"POST",headers:{"Content-Type":"application/json",apikey:SUPABASE_ANON_KEY},body:JSON.stringify({email,password:pw})});
     const d=await r.json();
-    if(d.access_token){token=d.access_token;try{sessionStorage.setItem("cm_tok",token)}catch(e){}saveProfile();enter()}
+    if(d.access_token){setSession(d);if(kind==="login")await loadCloud(true);saveProfile();enter()}
     else if(d.error_code==="email_not_confirmed"||(kind==="signup"&&r.ok))m.textContent=t().confirm;
     else m.textContent=t().bad;
   }catch(e){m.textContent=t().err}
 }
 async function saveProfile(){
   if(!ok()||!token)return;
+  if(expired())await refreshSession();
+  try{const {photo,...pp}=profile;await fetch(SUPABASE_URL+"/auth/v1/user",{method:"PUT",headers:H(),body:JSON.stringify({data:{cm:{profile:pp,st}}})})}catch(e){}
   try{await fetch(SUPABASE_URL+"/rest/v1/profiles?on_conflict=user_id",{method:"POST",headers:{...H(),Prefer:"resolution=merge-duplicates"},body:JSON.stringify({country:profile.country,lang,level:profile.level||0})})}catch(e){}
 }
 let recTok=null;
@@ -521,10 +585,10 @@ async function saveNewPw(){
     if(r.ok){m.textContent=L("pwdone");recTok=null;$("newpw").value="";setTimeout(()=>show("acc"),1800)}else m.textContent=t().err;
   }catch(e){m.textContent=t().err}
 }
-function enter(){tab="prof";$("chat").hidden=true;render();show("space")}
+function enter(){if(ok()&&!token){show("acc");return}tab="prof";$("chat").hidden=true;render();show("space")}
 function setLang(v){lang=v;try{localStorage.setItem("cm_lang",lang)}catch(e){}render()}
 
-$("start").onclick=()=>{show("ad");let n=5;const b=$("adGo");b.disabled=true;b.textContent=t().adWait(n);
+$("start").onclick=()=>{show("ad");let n=AD_CONFIG.wait;const b=$("adGo");b.disabled=true;b.textContent=t().adWait(n);
   const iv=setInterval(()=>{n--;if(n>0)b.textContent=t().adWait(n);else{clearInterval(iv);b.disabled=false;b.textContent=t().adGo}},1000)};
 $("adGo").onclick=()=>show("prof");
 $("profNext").onclick=()=>{profile.name=$("pname").value.trim();profile.country=$("country").value;profile.grade=$("grade").value;profile.level=profile.level||0;saveP();token?enter():show("acc")};
@@ -561,9 +625,10 @@ const hp=new URLSearchParams(location.hash.slice(1)),ht=hp.get("access_token");
 if(ht){
   try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}
   if(hp.get("type")==="recovery"){recTok=ht;show("reset")}
-  else{token=ht;try{sessionStorage.setItem("cm_tok",ht)}catch(e){}if(profile.country)enter();else show("prof")}
-}else if(token&&profile.country)enter();
+  else{setSession({access_token:ht,refresh_token:hp.get("refresh_token"),expires_in:+hp.get("expires_in")||3600});if(profile.country)enter();else show("prof")}
+}else if(token&&profile.country){(expired()?refreshSession():Promise.resolve(true)).then(()=>token?enter():show("acc"))}
+addEventListener("online",()=>{render();cloudSoon()});addEventListener("offline",render);
+if("serviceWorker" in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 </script>
-
 </body>
 </html>
