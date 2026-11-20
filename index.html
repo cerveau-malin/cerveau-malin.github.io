@@ -503,7 +503,7 @@ function putCache(k,d){try{const l=JSON.parse(localStorage.getItem("cm_clist")||
 const LN={fr:"français",en:"English",ru:"русский",zh:"中文",tr:"Türkçe",ar:"العربية"};
 const callAI=q=>fetch(SUPABASE_URL+"/functions/v1/ask-ai",{method:"POST",headers:H(),body:JSON.stringify({question:q,history:[],mode:"ai",subject:ctx.subj,country:cname(profile.country),grade:profile.grade||"",level:t().lv[profile.level||0],goal:profile.goal!==undefined?L("g"+profile.goal):"",filiere:profile.filiere||"",lang,file:null})});
 const who=()=>"Élève : niveau "+t().lv[profile.level||0]+", classe "+(profile.grade||"?")+", pays "+cname(profile.country)+(profile.filiere?", filière "+profile.filiere:"")+". Matière : "+(ctx.subj||"générale")+".";
-const LP=(again,topic)=>"Tu es un excellent professeur, patient et très clair. Réponds en "+LN[lang]+".\n"+who()+"\n"+(again?"L'élève n'a pas bien compris la première explication : explique AUTREMENT, avec une autre analogie et de nouveaux exemples de la vie quotidienne.":"Explique le sujet en profondeur, comme le ferait ChatGPT ou Claude.")+"\nÉcris un cours LONG, complet et très clair avec : 1) une introduction simple (pourquoi c'est utile) ; 2) les définitions importantes ; 3) l'explication pas à pas ; 4) au moins 2 exemples entièrement résolus, chaque étape détaillée ; 5) les erreurs fréquentes ; 6) un résumé de 5 points à retenir.\nUtilise des titres (##), des listes et du gras (**). Ne donne pas d'exercice maintenant ; termine en demandant à l'élève s'il a compris.\nSujet : "+topic;
+const LP=(again,topic)=>"Tu es un excellent professeur, patient et très clair. Réponds en "+LN[lang]+".\n"+who()+"\n"+(again?"L'élève n'a pas bien compris la première explication : explique AUTREMENT, avec une autre analogie et de nouveaux exemples de la vie quotidienne.":"Explique le sujet en profondeur, comme le ferait ChatGPT ou Claude.")+"\nÉcris un cours LONG, complet et très clair avec : 1) une introduction simple (pourquoi c'est utile) ; 2) les définitions importantes ; 3) l'explication pas à pas ; 4) au moins 2 exemples entièrement résolus, chaque étape détaillée ; 5) les erreurs fréquentes ; 6) un résumé de 5 points à retenir.\nSi on t'impose un format en plusieurs champs (idée, étapes, exercice), écris un contenu LONG et détaillé, sur plusieurs paragraphes, dans chaque champ. Utilise des titres (##), des listes et du gras (**). Ne donne pas d'exercice maintenant ; termine en demandant à l'élève s'il a compris.\nSujet : "+topic;
 const XP=tp=>"Tu es un professeur bienveillant. Réponds en "+LN[lang]+".\n"+who()+"\nL'élève a bien compris ces notions : "+tp.join(" ; ")+".\nCrée maintenant UN exercice progressif de 3 petites questions numérotées pour tester ces notions. Ne donne PAS la correction. Termine en disant à l'élève d'écrire sa réponse dans la case.";
 function rich(text){
   const c=mk("div","bl");
@@ -515,30 +515,32 @@ function rich(text){
     c.append(e)});
   $("log").appendChild(c);$("log").scrollTop=$("log").scrollHeight;return c}
 const getU=()=>{try{return JSON.parse(localStorage.getItem("cm_und")||"{}")}catch(e){return{}}};
+function markUnderstood(topic){
+  const u=getU(),k=ctx.subj||"_",e=u[k]||{n:0,t:[]};e.n++;if(!e.t.includes(topic))e.t.push(topic);
+  if(e.n>=3){const tp=e.t.slice(-3);u[k]={n:0,t:[]};try{localStorage.setItem("cm_und",JSON.stringify(u))}catch(x){}say(L("exTime"),"a");exercise(tp)}
+  else{u[k]=e;try{localStorage.setItem("cm_und",JSON.stringify(u))}catch(x){}say(L("undMsg")+" "+e.n+"/3","a")}}
 function lessonActions(topic,txt){
   const row=mk("div"),yes=mk("button","btn sm","✅ "+L("understood")),ag=mk("button","btn alt sm","🔁 "+L("again")),sp=mk("button","btn alt sm","🔊");
   row.style.cssText="display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px";
   ag.onclick=()=>{row.remove();ask("again",topic,false)};
   sp.onclick=()=>speak(String(txt).replace(/[#*]/g,""));
-  yes.onclick=()=>{yes.disabled=true;const u=getU(),k=ctx.subj||"_",e=u[k]||{n:0,t:[]};e.n++;if(!e.t.includes(topic))e.t.push(topic);
-    if(e.n>=3){const tp=e.t.slice(-3);u[k]={n:0,t:[]};try{localStorage.setItem("cm_und",JSON.stringify(u))}catch(x){}say(L("exTime"),"a");exercise(tp)}
-    else{u[k]=e;try{localStorage.setItem("cm_und",JSON.stringify(u))}catch(x){}say(L("undMsg")+" "+e.n+"/3","a")}};
+  yes.onclick=()=>{yes.disabled=true;markUnderstood(topic)};
   row.append(yes,ag,sp);$("log").appendChild(row);$("log").scrollTop=$("log").scrollHeight}
 async function lesson(mode,q){
   const again=mode==="again",topic=again?(lastQ||q):q;if(!again)lastQ=q;
   const w=say("…","a");$("send").disabled=true;
   try{const r=await callAI(LP(again,topic)),d=await r.json();w.remove();
     if(r.status===429||d.error==="daily_limit")say(t().limit,"a");
-    else if(!r.ok||!d.answer)say(t().err,"a");
-    else{try{localStorage.setItem("cm_last",JSON.stringify({s:ctx.subj,q:topic}))}catch(e){}addLesson();rich(d.answer);lessonActions(topic,d.answer);putCache("cm_c_"+mode+"|"+ctx.subj+"|"+q,d);if(bonusMsg){bonusMsg=false;say(L("dailyDone"),"a")}}
+    else if(!r.ok||(!d.answer&&!d.blocks))say(t().err,"a");
+    else{try{localStorage.setItem("cm_last",JSON.stringify({s:ctx.subj,q:topic}))}catch(e){}addLesson();if(d.answer){rich(d.answer);lessonActions(topic,d.answer)}else blocks(d.blocks,topic);putCache("cm_c_"+mode+"|"+ctx.subj+"|"+q,d);if(bonusMsg){bonusMsg=false;say(L("dailyDone"),"a")}}
   }catch(e){w.remove();say(t().err,"a")}
   $("send").disabled=false}
 async function exercise(tp){
   const w=say("…","a");$("send").disabled=true;
   try{const r=await callAI(XP(tp)),d=await r.json();w.remove();
     if(r.status===429)say(t().limit,"a");
-    else if(!r.ok||!d.answer)say(t().err,"a");
-    else{const c=rich(d.answer),inp=mk("input"),v=mk("button","btn sm",L("verify"));inp.placeholder=L("yourans");inp.style.margin="10px 0";v.onclick=()=>{if(inp.value.trim())ask("check","Exercice: "+d.answer+"\nRéponse: "+inp.value,false)};c.append(inp,v)}
+    else if(!r.ok||(!d.answer&&!d.blocks))say(t().err,"a");
+    else{const tx=d.answer||d.blocks.exercise||d.blocks.idea||"",c=rich(tx),inp=mk("input"),v=mk("button","btn sm",L("verify"));inp.placeholder=L("yourans");inp.style.margin="10px 0";v.onclick=()=>{if(inp.value.trim())ask("check","Exercice: "+tx+"\nRéponse: "+inp.value,false)};c.append(inp,v)}
   }catch(e){w.remove();say(t().err,"a")}
   $("send").disabled=false}
 function say(s,who){const p=mk("p","m "+who,s);$("log").appendChild(p);$("log").scrollTop=$("log").scrollHeight;return p}
@@ -552,7 +554,7 @@ function blocks(b,q){
   const ex=sec("✏️",L("b3"),b.exercise||""),inp=mk("input");inp.placeholder=L("yourans");inp.style.margin="10px 0";
   const v=mk("button","btn sm",L("verify"));v.onclick=()=>{if(inp.value.trim())ask("check","Exercice: "+b.exercise+"\nRéponse: "+inp.value,false)};
   const a=mk("button","btn alt sm",L("again"));a.style.marginInlineStart="8px";a.onclick=()=>ask("again",q,false);
-  const sp=mk("button","btn alt sm","🔊");sp.setAttribute("aria-label",L("play"));sp.style.marginInlineStart="8px";sp.onclick=()=>speak((b.idea||"")+". "+(b.steps||""));ex.append(inp,v,a,sp);c.append(sec("💡",L("b1"),b.idea||""),sec("🧩",L("b2"),b.steps||""),ex);
+  const sp=mk("button","btn alt sm","🔊");sp.setAttribute("aria-label",L("play"));sp.style.marginInlineStart="8px";sp.onclick=()=>speak((b.idea||"")+". "+(b.steps||""));const yes=mk("button","btn alt sm","✅ "+L("understood"));yes.style.marginInlineStart="8px";yes.onclick=()=>{yes.disabled=true;markUnderstood(q)};ex.append(inp,v,yes,a,sp);c.append(sec("💡",L("b1"),b.idea||""),sec("🧩",L("b2"),b.steps||""),ex);
   $("log").appendChild(c);$("log").scrollTop=$("log").scrollHeight;
 }
 async function ask(mode,text,showUser){
