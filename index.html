@@ -306,6 +306,7 @@ setInterval(()=>{adI++;if($("space").classList.contains("on")&&!AD_CONFIG.adsens
 
 /* ===== TEXTES DE LA VERSION 2027 : fr|en|ru|zh|tr ===== */
 const T2={
+understood:"J'ai compris|I understand|Я понял(а)|我懂了|Anladım|فهمت",undMsg:"Bravo ! Compris|Well done! Understood|Отлично! Понято|太棒了！已理解|Bravo! Anlaşıldı|أحسنت! فهمت",exTime:"C'est l'heure de l'exercice !|Time for an exercise!|Пора сделать упражнение!|练习时间到！|Alıştırma zamanı!|حان وقت التمرين!",
 trans:"Traduire la page|Translate the page|Перевести страницу|翻译此页|Sayfayı çevir|ترجمة الصفحة",trNote:"La traduction sert à lire. Pour postuler, utilise le site officiel d'origine.|Translation is for reading. To apply, use the original official site.|Перевод нужен для чтения. Подавай заявку на оригинальном официальном сайте.|翻译仅供阅读。申请请使用原官方网站。|Çeviri okumak içindir. Başvuru için orijinal resmî siteyi kullan.|الترجمة للقراءة فقط. للتقديم استخدم الموقع الرسمي الأصلي.",
 daily:"Défi du jour|Daily challenge|Задание дня|每日挑战|Günün görevi|تحدّي اليوم",dailyDone:"Défi réussi ! +30 points|Challenge complete! +30 points|Задание выполнено! +30 баллов|挑战完成！+30 积分|Görev tamam! +30 puan|أحسنت! أنجزت التحدّي +30 نقطة",lvl:"Niveau|Level|Уровень|等级|Seviye|المستوى",invite:"Inviter un ami|Invite a friend|Пригласить друга|邀请朋友|Arkadaşını davet et|ادعُ صديقًا",shareTxt:"Cerveau Malin : cours, exercices et bourses gratuits avec une IA.|Cerveau Malin: free lessons, exercises and scholarships with an AI.|Cerveau Malin: бесплатные уроки, упражнения и стипендии с ИИ.|Cerveau Malin：免费课程、练习和奖学金，由AI辅导。|Cerveau Malin: yapay zekâ ile ücretsiz ders, alıştırma ve burs.|Cerveau Malin: دروس وتمارين ومنح مجانية مع الذكاء الاصطناعي.",
 offline:"Pas de connexion internet. Reconnecte-toi pour poser une question.|No internet connection. Reconnect to ask a question.|Нет интернета. Подключись, чтобы задать вопрос.|没有网络。请连接网络后再提问。|İnternet yok. Soru sormak için bağlan.|لا يوجد اتصال بالإنترنت. أعد الاتصال لتطرح سؤالًا.",offl:"Hors ligne|Offline|Нет сети|离线|Çevrimdışı|غير متصل",
@@ -495,9 +496,51 @@ async function loadFil(){
 /* ===== ASSISTANT IA ===== */
 const getH=m=>{try{return JSON.parse(localStorage.getItem("cm_hist_"+m)||"[]")}catch(e){return[]}};
 function pushH(m,q,d){if(m!=="ai"&&m!=="uni")return;const h=getH(m);h.push({r:"u",t:String(q).slice(0,500)},{r:"a",t:String(d.answer||(d.blocks&&d.blocks.idea)||"").slice(0,700)});try{localStorage.setItem("cm_hist_"+m,JSON.stringify(h.slice(-20)))}catch(e){}}
-function ctxQ(m,q){if(m!=="ai"&&m!=="uni")return q;const h=getH(m).slice(-6);if(!h.length)return q;return "Conversation précédente :\n"+h.map(x=>(x.r==="u"?"Élève : ":"IA : ")+x.t).join("\n")+"\n\nNouvelle question : "+q}
+function ctxQ(m,q){if(m!=="ai"&&m!=="uni")return q;const pre=m==="ai"?"Réponds de façon claire, complète et détaillée, comme un bon professeur, avec des exemples.\n":"",h=getH(m).slice(-6);if(!h.length)return pre+q;return pre+"Conversation précédente :\n"+h.map(x=>(x.r==="u"?"Élève : ":"IA : ")+x.t).join("\n")+"\n\nNouvelle question : "+q}
 const getCache=k=>{try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}};
 function putCache(k,d){try{const l=JSON.parse(localStorage.getItem("cm_clist")||"[]").filter(x=>x!==k);l.push(k);while(l.length>25)localStorage.removeItem(l.shift());localStorage.setItem(k,JSON.stringify(d));localStorage.setItem("cm_clist",JSON.stringify(l))}catch(e){}}
+/* ===== COURS LONGS + EXERCICE APRÈS 3 "J'AI COMPRIS" ===== */
+const LN={fr:"français",en:"English",ru:"русский",zh:"中文",tr:"Türkçe",ar:"العربية"};
+const callAI=q=>fetch(SUPABASE_URL+"/functions/v1/ask-ai",{method:"POST",headers:H(),body:JSON.stringify({question:q,history:[],mode:"ai",subject:ctx.subj,country:cname(profile.country),grade:profile.grade||"",level:t().lv[profile.level||0],goal:profile.goal!==undefined?L("g"+profile.goal):"",filiere:profile.filiere||"",lang,file:null})});
+const who=()=>"Élève : niveau "+t().lv[profile.level||0]+", classe "+(profile.grade||"?")+", pays "+cname(profile.country)+(profile.filiere?", filière "+profile.filiere:"")+". Matière : "+(ctx.subj||"générale")+".";
+const LP=(again,topic)=>"Tu es un excellent professeur, patient et très clair. Réponds en "+LN[lang]+".\n"+who()+"\n"+(again?"L'élève n'a pas bien compris la première explication : explique AUTREMENT, avec une autre analogie et de nouveaux exemples de la vie quotidienne.":"Explique le sujet en profondeur, comme le ferait ChatGPT ou Claude.")+"\nÉcris un cours LONG, complet et très clair avec : 1) une introduction simple (pourquoi c'est utile) ; 2) les définitions importantes ; 3) l'explication pas à pas ; 4) au moins 2 exemples entièrement résolus, chaque étape détaillée ; 5) les erreurs fréquentes ; 6) un résumé de 5 points à retenir.\nUtilise des titres (##), des listes et du gras (**). Ne donne pas d'exercice maintenant ; termine en demandant à l'élève s'il a compris.\nSujet : "+topic;
+const XP=tp=>"Tu es un professeur bienveillant. Réponds en "+LN[lang]+".\n"+who()+"\nL'élève a bien compris ces notions : "+tp.join(" ; ")+".\nCrée maintenant UN exercice progressif de 3 petites questions numérotées pour tester ces notions. Ne donne PAS la correction. Termine en disant à l'élève d'écrire sa réponse dans la case.";
+function rich(text){
+  const c=mk("div","bl");
+  String(text).split("\n").forEach(line=>{
+    if(!line.trim()||/^\s*-{3,}\s*$/.test(line))return;
+    const h=line.match(/^\s*#{1,4}\s+(.*)/),li=/^\s*([-*•]|\d+[.)])\s/.test(line),e=mk(h?"h4":"p");
+    e.style.margin=h?"10px 0 4px":"4px 0";if(li&&!h)e.style.paddingInlineStart="12px";
+    (h?h[1]:line.replace(/^\s*[-*]\s+/,"• ").trim()).split(/\*\*(.+?)\*\*/).forEach((x,i)=>{if(!x)return;if(i%2)e.append(mk("strong","",x));else e.append(document.createTextNode(x))});
+    c.append(e)});
+  $("log").appendChild(c);$("log").scrollTop=$("log").scrollHeight;return c}
+const getU=()=>{try{return JSON.parse(localStorage.getItem("cm_und")||"{}")}catch(e){return{}}};
+function lessonActions(topic,txt){
+  const row=mk("div"),yes=mk("button","btn sm","✅ "+L("understood")),ag=mk("button","btn alt sm","🔁 "+L("again")),sp=mk("button","btn alt sm","🔊");
+  row.style.cssText="display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px";
+  ag.onclick=()=>{row.remove();ask("again",topic,false)};
+  sp.onclick=()=>speak(String(txt).replace(/[#*]/g,""));
+  yes.onclick=()=>{yes.disabled=true;const u=getU(),k=ctx.subj||"_",e=u[k]||{n:0,t:[]};e.n++;if(!e.t.includes(topic))e.t.push(topic);
+    if(e.n>=3){const tp=e.t.slice(-3);u[k]={n:0,t:[]};try{localStorage.setItem("cm_und",JSON.stringify(u))}catch(x){}say(L("exTime"),"a");exercise(tp)}
+    else{u[k]=e;try{localStorage.setItem("cm_und",JSON.stringify(u))}catch(x){}say(L("undMsg")+" "+e.n+"/3","a")}};
+  row.append(yes,ag,sp);$("log").appendChild(row);$("log").scrollTop=$("log").scrollHeight}
+async function lesson(mode,q){
+  const again=mode==="again",topic=again?(lastQ||q):q;if(!again)lastQ=q;
+  const w=say("…","a");$("send").disabled=true;
+  try{const r=await callAI(LP(again,topic)),d=await r.json();w.remove();
+    if(r.status===429||d.error==="daily_limit")say(t().limit,"a");
+    else if(!r.ok||!d.answer)say(t().err,"a");
+    else{try{localStorage.setItem("cm_last",JSON.stringify({s:ctx.subj,q:topic}))}catch(e){}addLesson();rich(d.answer);lessonActions(topic,d.answer);putCache("cm_c_"+mode+"|"+ctx.subj+"|"+q,d);if(bonusMsg){bonusMsg=false;say(L("dailyDone"),"a")}}
+  }catch(e){w.remove();say(t().err,"a")}
+  $("send").disabled=false}
+async function exercise(tp){
+  const w=say("…","a");$("send").disabled=true;
+  try{const r=await callAI(XP(tp)),d=await r.json();w.remove();
+    if(r.status===429)say(t().limit,"a");
+    else if(!r.ok||!d.answer)say(t().err,"a");
+    else{const c=rich(d.answer),inp=mk("input"),v=mk("button","btn sm",L("verify"));inp.placeholder=L("yourans");inp.style.margin="10px 0";v.onclick=()=>{if(inp.value.trim())ask("check","Exercice: "+d.answer+"\nRéponse: "+inp.value,false)};c.append(inp,v)}
+  }catch(e){w.remove();say(t().err,"a")}
+  $("send").disabled=false}
 function say(s,who){const p=mk("p","m "+who,s);$("log").appendChild(p);$("log").scrollTop=$("log").scrollHeight;return p}
 function openChat(subj,mode,pre){
   ctx={subj,mode};$("chat").hidden=false;$("cTitle").textContent=subj||t().tabs[5];$("cProg").hidden=mode==="ai"||mode==="uni";
@@ -519,8 +562,9 @@ async function ask(mode,text,showUser){
   if(!ok()){say(t().demo,"a");return}
   if(!token){$("chat").hidden=true;show("acc");return}
   const cKey="cm_c_"+mode+"|"+ctx.subj+"|"+q;
-  if(!navigator.onLine){const c=!att&&getCache(cKey);if(c){if(c.blocks)blocks(c.blocks,q);else say(c.answer||"","a")}else say(L("offline"),"a");return}
+  if(!navigator.onLine){const c=!att&&getCache(cKey);if(c){if(c.blocks)blocks(c.blocks,q);else rich(c.answer||"")}else say(L("offline"),"a");return}
   if(token&&expired())await refreshSession();
+  if((mode==="learn"||mode==="again")&&!att)return lesson(mode,q);
   const w=say("…","a"),f=att;att=null;$("attach").hidden=true;$("send").disabled=true;
   try{
     const r=await fetch(SUPABASE_URL+"/functions/v1/ask-ai",{method:"POST",headers:H(),body:JSON.stringify({question:ctxQ(mode,q||L("uploaded")),history:getH(mode).slice(-6),mode,subject:ctx.subj,country:cname(profile.country),grade:profile.grade||"",level:t().lv[profile.level||0],goal:profile.goal!==undefined?L("g"+profile.goal):"",filiere:profile.filiere||"",lang,file:f})});
@@ -529,7 +573,7 @@ async function ask(mode,text,showUser){
     else if(!r.ok)say(t().err,"a");
     else{
       if(mode==="learn"||mode==="again"){if(mode==="learn")lastQ=q;try{localStorage.setItem("cm_last",JSON.stringify({s:ctx.subj,q:lastQ||q}))}catch(e){}addLesson()}
-      if(d.blocks)blocks(d.blocks,lastQ||q);else say(d.answer||"","a");
+      if(d.blocks)blocks(d.blocks,lastQ||q);else rich(d.answer||"");
       if(!f&&mode!=="check"&&mode!=="program"&&mode!=="filieres")putCache(cKey,d);pushH(mode,q,d);
       if(bonusMsg){bonusMsg=false;say(L("dailyDone"),"a")}
       if(mode==="check"&&String(d.answer).startsWith("✅")){st.pts+=20;saveSt()}
