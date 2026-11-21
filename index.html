@@ -306,6 +306,7 @@ setInterval(()=>{adI++;if($("space").classList.contains("on")&&!AD_CONFIG.adsens
 
 /* ===== TEXTES DE LA VERSION 2027 : fr|en|ru|zh|tr ===== */
 const T2={
+rec:"Je t'écoute… touche ⏹ pour envoyer|I'm listening… tap ⏹ to finish|Слушаю… нажми ⏹, чтобы закончить|我在听… 点 ⏹ 结束|Dinliyorum… bitirmek için ⏹ dokun|أنا أصغي… المس ⏹ للإنهاء",trs:"Transcription…|Transcribing…|Расшифровка…|转写中…|Yazıya çevriliyor…|جارٍ التفريغ…",micFail:"Micro indisponible. Autorise le micro pour l'application, ou écris ta question.|Microphone unavailable. Allow the microphone for the app, or type your question.|Микрофон недоступен. Разреши микрофон для приложения или напиши вопрос.|麦克风不可用。请允许应用使用麦克风，或直接输入问题。|Mikrofon kullanılamıyor. Uygulamaya mikrofon izni ver veya sorunu yaz.|الميكروفون غير متاح. اسمح للتطبيق بالميكروفون أو اكتب سؤالك.",
 fullc:"Cours complet|Full course|Полный курс|完整课程|Tam ders|الدرس كاملاً",
 essayFix:"Corriger ma dissertation|Correct my essay|Проверить моё сочинение|批改我的作文|Kompozisyonumu düzelt|صحّح مقالي",essayPaste:"Colle ici ta dissertation ou ton plan|Paste your essay or outline here|Вставь сюда сочинение или план|在此粘贴你的作文或提纲|Kompozisyonunu veya planını buraya yapıştır|الصق هنا مقالك أو خطّتك",
 essayNote:"Ceci est un modèle pour apprendre la méthode. Réécris-le avec tes propres mots et tes propres exemples, et vérifie les faits.|This is a model to learn the method. Rewrite it in your own words with your own examples, and check the facts.|Это образец для изучения метода. Перепиши его своими словами, со своими примерами, и проверь факты.|这是学习方法的范文。请用自己的话和例子重写，并核实事实。|Bu, yöntemi öğrenmek için bir örnektir. Kendi sözlerinle ve örneklerinle yeniden yaz, bilgileri kontrol et.|هذا نموذج لتعلّم المنهج. أعد كتابته بأسلوبك وأمثلتك الخاصة وتحقّق من المعلومات.",copy:"Copier|Copy|Копировать|复制|Kopyala|نسخ",
@@ -445,7 +446,7 @@ function drawMore(){
   const e=mk("button","btn alt full",L("edit"));e.onclick=()=>{$("pname").value=profile.name||"";show("prof")};
   const o=mk("button","btn alt full",t().out);o.onclick=async()=>{const on=navigator.onLine;await saveProfile();clearSession();if(on){try{["cm_prof","cm_st","cm_last","cm_hist_ai","cm_hist_uni"].forEach(k=>localStorage.removeItem(k))}catch(x){}profile={};st={ts:[],days:[],pts:0};$("pname").value=""}render();show("home")};
   const sh=mk("button","btn alt full","📲 "+L("invite"));sh.onclick=()=>{const u="https://cerveau-malin.github.io",tx=L("shareTxt");if(navigator.share)navigator.share({title:"Cerveau Malin",text:tx,url:u}).catch(()=>{});else window.open("https://wa.me/?text="+encodeURIComponent(tx+" "+u),"_blank","noopener")};
-  b.append(z,mk("p","note",L("parents")),sh,e,o,mk("p","note","Cerveau Malin · v3.0 (cours complet)"));
+  b.append(z,mk("p","note",L("parents")),sh,e,o,mk("p","note","Cerveau Malin · v3.2 (voix + exercice)"));
 }
 function drawGrantsView(){
   const x=t();$("gTitle").textContent=x.tabs[3];$("gs").placeholder=x.gs;$("gnote").textContent=x.gnote+" "+L("trNote");
@@ -519,10 +520,11 @@ function rich(text){
     c.append(e)});
   $("log").appendChild(c);$("log").scrollTop=$("log").scrollHeight;return c}
 const getU=()=>{try{return JSON.parse(localStorage.getItem("cm_und")||"{}")}catch(e){return{}}};
-function markUnderstood(topic){
+function countQ(topic){
   const u=getU(),k=ctx.subj||"_",e=u[k]||{n:0,t:[]};e.n++;if(!e.t.includes(topic))e.t.push(topic);
   if(e.n>=3){const tp=e.t.slice(-3);u[k]={n:0,t:[]};try{localStorage.setItem("cm_und",JSON.stringify(u))}catch(x){}say(L("exTime"),"a");exercise(tp)}
-  else{u[k]=e;try{localStorage.setItem("cm_und",JSON.stringify(u))}catch(x){}say(L("undMsg")+" "+e.n+"/3","a")}}
+  else{u[k]=e;try{localStorage.setItem("cm_und",JSON.stringify(u))}catch(x){}}}
+function markUnderstood(topic){const e=getU()[ctx.subj||"_"];say(L("undMsg")+(e&&e.n?" "+e.n+"/3":""),"a")}
 function lessonActions(topic,txt){
   const row=mk("div"),yes=mk("button","btn sm","✅ "+L("understood")),ag=mk("button","btn alt sm","🔁 "+L("again")),fc=mk("button","btn alt sm","📚 "+L("fullc")),sp=mk("button","btn alt sm","🔊");
   row.style.cssText="display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px";
@@ -537,7 +539,7 @@ async function lesson(mode,q){
   try{const r=await callAI(full?LF(topic):LP(again,topic),full?"fullcourse":again?"course_again":"course"),d=await r.json();w.remove();
     if(r.status===429||d.error==="daily_limit")say(t().limit,"a");
     else if(!r.ok||(!d.answer&&!d.blocks))say(t().err,"a");
-    else{try{localStorage.setItem("cm_last",JSON.stringify({s:ctx.subj,q:topic}))}catch(e){}addLesson();if(d.answer){rich(d.answer);lessonActions(topic,d.answer)}else blocks(d.blocks,topic);putCache("cm_c_"+mode+"|"+ctx.subj+"|"+q,d);if(bonusMsg){bonusMsg=false;say(L("dailyDone"),"a")}}
+    else{try{localStorage.setItem("cm_last",JSON.stringify({s:ctx.subj,q:topic}))}catch(e){}addLesson();if(d.answer){rich(d.answer);lessonActions(topic,d.answer)}else blocks(d.blocks,topic);if(mode==="learn")countQ(topic);putCache("cm_c_"+mode+"|"+ctx.subj+"|"+q,d);if(bonusMsg){bonusMsg=false;say(L("dailyDone"),"a")}}
   }catch(e){w.remove();say(t().err,"a")}
   $("send").disabled=false}
 async function exercise(tp){
@@ -549,8 +551,9 @@ async function exercise(tp){
   }catch(e){w.remove();say(t().err,"a")}
   $("send").disabled=false}
 function say(s,who){const p=mk("p","m "+who,s);$("log").appendChild(p);$("log").scrollTop=$("log").scrollHeight;return p}
+let chatKey="";
 function openChat(subj,mode,pre){
-  ctx={subj,mode};$("chat").hidden=false;$("cTitle").textContent=subj||t().tabs[5];$("cProg").hidden=["ai","uni","essay","essay_fix"].includes(mode);
+  ctx={subj,mode};{const key=(subj||"")+"|"+mode;if(key!==chatKey){$("log").innerHTML="";chatKey=key}}$("chat").hidden=false;$("cTitle").textContent=subj||t().tabs[5];$("cProg").hidden=["ai","uni","essay","essay_fix"].includes(mode);
   if(!$("log").children.length){say(L("listen"),"a");if(mode==="ai"||mode==="uni")getH(mode).slice(-6).forEach(x=>say(x.t,x.r));if(mode==="essay")say(t().hint[2],"a");if(mode==="essay_fix")say(L("essayPaste"),"a")}
   if(pre)ask(mode,pre);
 }
@@ -580,7 +583,7 @@ async function ask(mode,text,showUser){
     else if(!r.ok)say(t().err,"a");
     else{
       if(mode==="learn"||mode==="again"){if(mode==="learn")lastQ=q;try{localStorage.setItem("cm_last",JSON.stringify({s:ctx.subj,q:lastQ||q}))}catch(e){}addLesson()}
-      if(d.blocks)blocks(d.blocks,lastQ||q);else{rich(d.answer||"");if(mode==="ai"&&d.answer)lessonActions(q,d.answer)}
+      if(d.blocks)blocks(d.blocks,lastQ||q);else{rich(d.answer||"");if(mode==="ai"&&d.answer){lessonActions(q,d.answer);countQ(q)}}
       if(mode==="essay"&&d.answer){say(L("essayNote"),"a");const cp=mk("button","btn alt sm","📋 "+L("copy"));cp.style.margin="0 0 12px";cp.onclick=()=>{try{navigator.clipboard.writeText(d.answer)}catch(e){}};$("log").appendChild(cp)}
       if(!f&&mode!=="check"&&mode!=="program"&&mode!=="filieres")putCache(cKey,d);pushH(mode,q,d);
       if(bonusMsg){bonusMsg=false;say(L("dailyDone"),"a")}
@@ -599,10 +602,47 @@ async function pick(f){
   }catch(e){say(t().err,"a")}
 }
 function mic(){
-  const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){say(L("nomic"),"a");return}
+  const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){recordTranscribe();return}
   try{const r=new R();r.lang={fr:"fr-FR",en:"en-US",ru:"ru-RU",zh:"zh-CN",tr:"tr-TR",ar:"ar-SA"}[lang];r.onresult=e=>{$("q").value=e.results[0][0].transcript};r.onerror=()=>say(L("nomic"),"a");r.start()}catch(e){say(L("nomic"),"a")}
 }
 
+/* ===== VOIX : enregistrement + transcription par l'IA (marche dans l'APK) ===== */
+let recS=null;
+async function recordTranscribe(){
+  if(recS){stopRec();return}
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){say(L("micFail"),"a");return}
+  let ac=null;try{ac=new AC();ac.resume()}catch(e){say(L("micFail"),"a");return}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true}),src=ac.createMediaStreamSource(stream),pr=ac.createScriptProcessor(4096,1,1),buf=[];
+    pr.onaudioprocess=e=>buf.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+    src.connect(pr);pr.connect(ac.destination);if(ac.state==="suspended")ac.resume();
+    recS={stream,ac,pr,src,buf,rate:ac.sampleRate,t:setTimeout(stopRec,40000)};
+    $("bMic").textContent="⏹";say(L("rec"),"a")
+  }catch(e){recS=null;try{ac.close()}catch(x){}say(L("micFail"),"a")}
+}
+function stopRec(){
+  const r=recS;if(!r)return;recS=null;clearTimeout(r.t);
+  try{r.pr.disconnect();r.src.disconnect();r.stream.getTracks().forEach(x=>x.stop());r.ac.close()}catch(e){}
+  $("bMic").textContent="🎤";
+  const w=toWav(r.buf,r.rate);if(w)transcribeAudio(w);else say(L("micFail"),"a")
+}
+function toWav(chunks,rate){
+  let n=0;chunks.forEach(c=>n+=c.length);if(n<rate*0.5)return null;
+  const all=new Float32Array(n);let o=0;chunks.forEach(c=>{all.set(c,o);o+=c.length});
+  const k=rate/16000,len=Math.floor(n/k),buf=new ArrayBuffer(44+len*2),v=new DataView(buf),w=(i,s)=>{for(let j=0;j<s.length;j++)v.setUint8(i+j,s.charCodeAt(j))};
+  w(0,"RIFF");v.setUint32(4,36+len*2,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,16000,true);v.setUint32(28,32000,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,"data");v.setUint32(40,len*2,true);
+  for(let i=0;i<len;i++){const a=Math.floor(i*k),b2=Math.max(a+1,Math.floor((i+1)*k));let sum=0;for(let j=a;j<b2&&j<n;j++)sum+=all[j];const x=Math.max(-1,Math.min(1,sum/(b2-a)));v.setInt16(44+i*2,x<0?x*32768:x*32767,true)}
+  const u=new Uint8Array(buf);let s="";for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)}
+async function transcribeAudio(b64){
+  const w=say(L("trs"),"a");
+  try{if(token&&expired())await refreshSession();
+    const r=await fetch(SUPABASE_URL+"/functions/v1/ask-ai",{method:"POST",headers:H(),body:JSON.stringify({question:"transcribe",mode:"transcribe",lang,file:{mime:"audio/wav",data:b64}})}),d=await r.json();w.remove();
+    if(r.status===429)say(t().limit,"a");
+    else if(!r.ok||!d.answer)say(L("micFail"),"a");
+    else{$("q").value=String(d.answer).trim();$("q").focus()}
+  }catch(e){w.remove();say(L("micFail"),"a")}
+}
 /* ===== COMPTE ===== */
 async function auth(kind){
   const email=$("email").value.trim(),pw=$("pass").value,m=$("accMsg");m.textContent="";
