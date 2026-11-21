@@ -446,7 +446,7 @@ function drawMore(){
   const e=mk("button","btn alt full",L("edit"));e.onclick=()=>{$("pname").value=profile.name||"";show("prof")};
   const o=mk("button","btn alt full",t().out);o.onclick=async()=>{const on=navigator.onLine;await saveProfile();clearSession();if(on){try{["cm_prof","cm_st","cm_last","cm_hist_ai","cm_hist_uni"].forEach(k=>localStorage.removeItem(k))}catch(x){}profile={};st={ts:[],days:[],pts:0};$("pname").value=""}render();show("home")};
   const sh=mk("button","btn alt full","📲 "+L("invite"));sh.onclick=()=>{const u="https://cerveau-malin.github.io",tx=L("shareTxt");if(navigator.share)navigator.share({title:"Cerveau Malin",text:tx,url:u}).catch(()=>{});else window.open("https://wa.me/?text="+encodeURIComponent(tx+" "+u),"_blank","noopener")};
-  b.append(z,mk("p","note",L("parents")),sh,e,o,mk("p","note","Cerveau Malin · v3.3 (cours complet en 2 parties)"));
+  b.append(z,mk("p","note",L("parents")),sh,e,o,mk("p","note","Cerveau Malin · v3.2 (voix + exercice)"));
 }
 function drawGrantsView(){
   const x=t();$("gTitle").textContent=x.tabs[3];$("gs").placeholder=x.gs;$("gnote").textContent=x.gnote+" "+L("trNote");
@@ -508,19 +508,7 @@ const LN={fr:"français",en:"English",ru:"русский",zh:"中文",tr:"Türk�
 const callAI=(q,md)=>fetch(SUPABASE_URL+"/functions/v1/ask-ai",{method:"POST",headers:H(),body:JSON.stringify({question:q,history:[],mode:md||"ai",subject:ctx.subj,country:cname(profile.country),grade:profile.grade||"",level:t().lv[profile.level||0],goal:profile.goal!==undefined?L("g"+profile.goal):"",filiere:profile.filiere||"",lang,file:null})});
 const who=()=>"Élève : niveau "+t().lv[profile.level||0]+", classe "+(profile.grade||"?")+", pays "+cname(profile.country)+(profile.filiere?", filière "+profile.filiere:"")+". Matière : "+(ctx.subj||"générale")+".";
 const LP=(again,topic)=>"Tu es un excellent professeur, patient et très clair. Réponds en "+LN[lang]+".\n"+who()+"\n"+(again?"L'élève n'a pas bien compris la première explication : explique AUTREMENT, avec une autre analogie et de nouveaux exemples de la vie quotidienne.":"Explique le sujet en profondeur, comme le ferait ChatGPT ou Claude.")+"\nÉcris un cours LONG, complet et très clair avec : 1) une introduction simple (pourquoi c'est utile) ; 2) les définitions importantes ; 3) l'explication pas à pas ; 4) au moins 2 exemples entièrement résolus, chaque étape détaillée ; 5) les erreurs fréquentes ; 6) un résumé de 5 points à retenir.\nSi on t'impose un format en plusieurs champs (idée, étapes, exercice), écris un contenu LONG et détaillé, sur plusieurs paragraphes, dans chaque champ. Utilise des titres (##), des listes et du gras (**). Ne donne pas d'exercice maintenant ; termine en demandant à l'élève s'il a compris.\nSujet : "+topic;
-const LF=(topic,part,plan)=>"Tu es un excellent professeur. Réponds en "+LN[lang]+".\n"+who()+"\nTu écris le COURS COMPLET sur ce sujet (tout le chapitre), comme un bon manuel scolaire, en 2 parties. "+(part===1?"Écris la PARTIE 1 sur 2 (environ 1200 mots) : plan numéroté de tout le cours, introduction, définitions, propriétés ou formules, explications pas à pas. Ne donne pas encore les exemples résolus.":"Écris la PARTIE 2 sur 2 (environ 1200 mots) : au moins 4 exemples entièrement résolus, erreurs fréquentes, tableau ou schéma décrit en texte si utile, fiche de révision finale. Ne répète pas la partie 1. Titres de la partie 1 : "+plan)+" Utilise des titres (##), des listes et du gras (**). Pas d'exercice.\nSujet : "+topic;
-async function fullCourse(topic){
-  $("send").disabled=true;let plan="";
-  for(const part of [1,2]){
-    const w=say("… "+part+"/2","a");
-    try{const r=await callAI(LF(topic,part,plan),"fullcourse"),d=await r.json();w.remove();
-      if(r.status===429||d.error==="daily_limit"){say(t().limit,"a");break}
-      if(!r.ok||!d.answer){say(t().err+" ("+(d.error||r.status)+")","a");break}
-      rich(d.answer);plan=[...d.answer.matchAll(/^#+ .*$/gm)].map(x=>x[0]).slice(0,12).join(" | ");
-      if(part===2)lessonActions(topic,d.answer)
-    }catch(e){w.remove();say(t().err+" ("+(e.name||"réseau")+")","a");break}
-  }
-  $("send").disabled=false}
+const LF=topic=>"Tu es un excellent professeur. Réponds en "+LN[lang]+".\n"+who()+"\nÉcris le COURS COMPLET et très détaillé sur ce sujet (tout le chapitre), comme un bon manuel scolaire : plan numéroté, parties séparées avec définitions, propriétés ou formules, explications pas à pas, au moins 4 exemples entièrement résolus, erreurs fréquentes, tableau ou schéma décrit en texte si utile, et fiche de révision finale. Titres (##), listes et gras (**).\nSujet : "+topic;
 const XP=tp=>"Tu es un professeur bienveillant. Réponds en "+LN[lang]+".\n"+who()+"\nL'élève a bien compris ces notions : "+tp.join(" ; ")+".\nCrée maintenant UN exercice progressif de 3 petites questions numérotées pour tester ces notions. Ne donne PAS la correction. Termine en disant à l'élève d'écrire sa réponse dans la case.";
 function rich(text){
   const c=mk("div","bl");
@@ -546,12 +534,11 @@ function lessonActions(topic,txt){
   fc.onclick=()=>{fc.disabled=true;lesson("full",topic)};
   row.append(yes,ag,fc,sp);$("log").appendChild(row);$("log").scrollTop=$("log").scrollHeight}
 async function lesson(mode,q){
-  if(mode==="full")return fullCourse(q);
   const again=mode==="again",full=mode==="full",topic=again?(lastQ||q):q;if(!again&&!full)lastQ=q;
   const w=say("…","a");$("send").disabled=true;
   try{const r=await callAI(full?LF(topic):LP(again,topic),full?"fullcourse":again?"course_again":"course"),d=await r.json();w.remove();
     if(r.status===429||d.error==="daily_limit")say(t().limit,"a");
-    else if(!r.ok||(!d.answer&&!d.blocks))say(t().err+" ("+(d.error||r.status)+")","a");
+    else if(!r.ok||(!d.answer&&!d.blocks))say(t().err,"a");
     else{try{localStorage.setItem("cm_last",JSON.stringify({s:ctx.subj,q:topic}))}catch(e){}addLesson();if(d.answer){rich(d.answer);lessonActions(topic,d.answer)}else blocks(d.blocks,topic);if(mode==="learn")countQ(topic);putCache("cm_c_"+mode+"|"+ctx.subj+"|"+q,d);if(bonusMsg){bonusMsg=false;say(L("dailyDone"),"a")}}
   }catch(e){w.remove();say(t().err,"a")}
   $("send").disabled=false}
@@ -559,7 +546,7 @@ async function exercise(tp){
   const w=say("…","a");$("send").disabled=true;
   try{const r=await callAI(XP(tp),"exercise"),d=await r.json();w.remove();
     if(r.status===429)say(t().limit,"a");
-    else if(!r.ok||(!d.answer&&!d.blocks))say(t().err+" ("+(d.error||r.status)+")","a");
+    else if(!r.ok||(!d.answer&&!d.blocks))say(t().err,"a");
     else{const tx=d.answer||d.blocks.exercise||d.blocks.idea||"",c=rich(tx),inp=mk("input"),v=mk("button","btn sm",L("verify"));inp.placeholder=L("yourans");inp.style.margin="10px 0";v.onclick=()=>{if(inp.value.trim())ask("check","Exercice: "+tx+"\nRéponse: "+inp.value,false)};c.append(inp,v)}
   }catch(e){w.remove();say(t().err,"a")}
   $("send").disabled=false}
