@@ -307,6 +307,7 @@ setInterval(()=>{adI++;if($("space").classList.contains("on")&&!AD_CONFIG.adsens
 
 /* ===== TEXTES DE LA VERSION 2027 : fr|en|ru|zh|tr ===== */
 const T2={
+liveRetry:"Je n'ai pas compris, répète.|I didn't catch that, please repeat.|Не расслышал, повтори.|没听清，请再说一遍。|Anlayamadım, tekrar eder misin?|لم أفهم، أعد من فضلك.",
 liveTalk:"Parler|Talk|Говорить|对话|Konuş|تحدّث",liveStop:"Arrêter|Stop|Стоп|停止|Durdur|إيقاف",liveListen:"Je t'écoute…|I'm listening…|Слушаю…|我在听…|Dinliyorum…|أنا أصغي…",liveThink:"Je réfléchis…|Thinking…|Думаю…|思考中…|Düşünüyorum…|أفكّر…",liveSpeak:"Je réponds…|Answering…|Отвечаю…|回答中…|Yanıtlıyorum…|أجيب…",
 learnLang:"Apprendre une langue|Learn a language|Учить язык|学习语言|Dil öğren|تعلّم لغة",learnPick:"Choisis la langue que tu veux apprendre.|Choose the language you want to learn.|Выбери язык, который хочешь учить.|选择你想学习的语言。|Öğrenmek istediğin dili seç.|اختر اللغة التي تريد تعلّمها.",
 rec:"Je t'écoute… touche ⏹ pour envoyer|I'm listening… tap ⏹ to finish|Слушаю… нажми ⏹, чтобы закончить|我在听… 点 ⏹ 结束|Dinliyorum… bitirmek için ⏹ dokun|أنا أصغي… المس ⏹ للإنهاء",trs:"Transcription…|Transcribing…|Расшифровка…|转写中…|Yazıya çevriliyor…|جارٍ التفريغ…",micFail:"Micro indisponible. Autorise le micro pour l'application, ou écris ta question.|Microphone unavailable. Allow the microphone for the app, or type your question.|Микрофон недоступен. Разреши микрофон для приложения или напиши вопрос.|麦克风不可用。请允许应用使用麦克风，或直接输入问题。|Mikrofon kullanılamıyor. Uygulamaya mikrofon izni ver veya sorunu yaz.|الميكروفون غير متاح. اسمح للتطبيق بالميكروفون أو اكتب سؤالك.",
@@ -449,7 +450,7 @@ function drawMore(){
   const e=mk("button","btn alt full",L("edit"));e.onclick=()=>{$("pname").value=profile.name||"";show("prof")};
   const o=mk("button","btn alt full",t().out);o.onclick=async()=>{const on=navigator.onLine;await saveProfile();clearSession();if(on){try{["cm_prof","cm_st","cm_last","cm_hist_ai","cm_hist_uni"].forEach(k=>localStorage.removeItem(k))}catch(x){}profile={};st={ts:[],days:[],pts:0};$("pname").value=""}render();show("home")};
   const sh=mk("button","btn alt full","📲 "+L("invite"));sh.onclick=()=>{const u="https://cerveau-malin.github.io",tx=L("shareTxt");if(navigator.share)navigator.share({title:"Cerveau Malin",text:tx,url:u}).catch(()=>{});else window.open("https://wa.me/?text="+encodeURIComponent(tx+" "+u),"_blank","noopener")};
-  b.append(z,mk("p","note",L("parents")),sh,e,o,mk("p","note","Cerveau Malin · v3.5 (conversation vocale)"));
+  b.append(z,mk("p","note",L("parents")),sh,e,o,mk("p","note","Cerveau Malin · v3.6 (réponses en direct)"));
 }
 function drawGrantsView(){
   const x=t();$("gTitle").textContent=x.tabs[3];$("gs").placeholder=x.gs;$("gnote").textContent=x.gnote+" "+L("trNote");
@@ -508,7 +509,20 @@ const getCache=k=>{try{return JSON.parse(localStorage.getItem(k)||"null")}catch(
 function putCache(k,d){try{const l=JSON.parse(localStorage.getItem("cm_clist")||"[]").filter(x=>x!==k);l.push(k);while(l.length>25)localStorage.removeItem(l.shift());localStorage.setItem(k,JSON.stringify(d));localStorage.setItem("cm_clist",JSON.stringify(l))}catch(e){}}
 /* ===== COURS LONGS + EXERCICE APRÈS 3 "J'AI COMPRIS" ===== */
 const LN={fr:"français",en:"English",ru:"русский",zh:"中文",tr:"Türkçe",ar:"العربية"};
-const callAI=(q,md)=>fetch(SUPABASE_URL+"/functions/v1/ask-ai",{method:"POST",headers:H(),body:JSON.stringify({question:q,history:[],mode:md||"ai",subject:ctx.subj,country:cname(profile.country),grade:profile.grade||"",level:t().lv[profile.level||0],goal:profile.goal!==undefined?L("g"+profile.goal):"",filiere:profile.filiere||"",lang,file:null})});
+const bodyAI=(q,md)=>({question:q,history:[],mode:md||"ai",subject:ctx.subj,country:cname(profile.country),grade:profile.grade||"",level:t().lv[profile.level||0],goal:profile.goal!==undefined?L("g"+profile.goal):"",filiere:profile.filiere||"",lang,file:null});
+async function postAI(body,w){
+  body.stream=true;
+  const r=await fetch(SUPABASE_URL+"/functions/v1/ask-ai",{method:"POST",headers:H(),body:JSON.stringify(body)}),ct=(r.headers&&r.headers.get&&r.headers.get("content-type"))||"";
+  if(!r.ok||ct.indexOf("event-stream")<0||!r.body){let d={};try{d=await r.json()}catch(e){d={error:"bad_response"}}return{r,d,ok:r.ok}}
+  const rd=r.body.getReader(),dec=new TextDecoder(),c=mk("div","bl");let buf="",txt="",err=null,last=0,added=false;
+  const paint=()=>{if(!added){added=true;if(w)w.remove();$("log").appendChild(c)}richFill(c,txt);$("log").scrollTop=$("log").scrollHeight};
+  for(;;){const x=await rd.read();if(x.done)break;buf+=dec.decode(x.value,{stream:true}).replace(/\r\n/g,"\n");
+    let i;while((i=buf.indexOf("\n\n"))>=0){const ev=buf.slice(0,i);buf=buf.slice(i+2);
+      ev.split("\n").forEach(l=>{if(l.indexOf("data:")!==0)return;try{const j=JSON.parse(l.slice(5));if(j.t)txt+=j.t;if(j.error)err=j.error}catch(e){}})}
+    if(txt&&Date.now()-last>90){last=Date.now();paint()}}
+  if(txt)paint();if(err&&txt)say(t().err+" ("+err+")","a");
+  return{r,c,d:{answer:txt,error:err,shown:!!txt},ok:!!txt}}
+const callAI=(q,md,w)=>postAI(bodyAI(q,md),w);
 const who=()=>"Élève : niveau "+t().lv[profile.level||0]+", classe "+(profile.grade||"?")+", pays "+cname(profile.country)+(profile.filiere?", filière "+profile.filiere:"")+". Matière : "+(ctx.subj||"générale")+".";
 const LP=(again,topic)=>"Tu es un excellent professeur, patient et très clair. Réponds en "+LN[lang]+".\n"+who()+"\n"+(again?"L'élève n'a pas bien compris la première explication : explique AUTREMENT, avec une autre analogie et de nouveaux exemples de la vie quotidienne.":"Explique le sujet en profondeur, comme le ferait ChatGPT ou Claude.")+"\nÉcris un cours LONG, complet et très clair avec : 1) une introduction simple (pourquoi c'est utile) ; 2) les définitions importantes ; 3) l'explication pas à pas ; 4) au moins 2 exemples entièrement résolus, chaque étape détaillée ; 5) les erreurs fréquentes ; 6) un résumé de 5 points à retenir.\nSi on t'impose un format en plusieurs champs (idée, étapes, exercice), écris un contenu LONG et détaillé, sur plusieurs paragraphes, dans chaque champ. Utilise des titres (##), des listes et du gras (**). Ne donne pas d'exercice maintenant ; termine en demandant à l'élève s'il a compris.\nSujet : "+topic;
 const LF=(topic,part,plan)=>"Tu es un excellent professeur. Réponds en "+LN[lang]+".\n"+who()+"\nTu écris le COURS COMPLET sur ce sujet (tout le chapitre), comme un bon manuel scolaire, en 2 parties. "+(part===1?"Écris la PARTIE 1 sur 2 (environ 1200 mots) : plan numéroté de tout le cours, introduction, définitions, propriétés ou formules, explications pas à pas. Ne donne pas encore les exemples résolus.":"Écris la PARTIE 2 sur 2 (environ 1200 mots) : au moins 4 exemples entièrement résolus, erreurs fréquentes, tableau ou schéma décrit en texte si utile, fiche de révision finale. Ne répète pas la partie 1. Titres de la partie 1 : "+plan)+" Utilise des titres (##), des listes et du gras (**). Pas d'exercice.\nSujet : "+topic;
@@ -516,24 +530,23 @@ async function fullCourse(topic){
   $("send").disabled=true;let plan="";
   for(const part of [1,2]){
     const w=say("… "+part+"/2","a");
-    try{const r=await callAI(LF(topic,part,plan),"fullcourse"),d=await r.json();w.remove();
+    try{const o=await callAI(LF(topic,part,plan),"fullcourse",w),r=o.r,d=o.d;w.remove();
       if(r.status===429||d.error==="daily_limit"){say(t().limit,"a");break}
-      if(!r.ok||!d.answer){say(t().err+" ("+(d.error||r.status)+")","a");break}
-      rich(d.answer);plan=[...d.answer.matchAll(/^#+ .*$/gm)].map(x=>x[0]).slice(0,12).join(" | ");
+      if(!o.ok||!d.answer){say(t().err+" ("+(d.error||r.status)+")","a");break}
+      if(!d.shown)rich(d.answer);plan=[...d.answer.matchAll(/^#+ .*$/gm)].map(x=>x[0]).slice(0,12).join(" | ");
       if(part===2)lessonActions(topic,d.answer)
     }catch(e){w.remove();say(t().err+" ("+(e.name||"réseau")+")","a");break}
   }
   $("send").disabled=false}
 const XP=tp=>"Tu es un professeur bienveillant. Réponds en "+LN[lang]+".\n"+who()+"\nL'élève a bien compris ces notions : "+tp.join(" ; ")+".\nCrée maintenant UN exercice progressif de 3 petites questions numérotées pour tester ces notions. Ne donne PAS la correction. Termine en disant à l'élève d'écrire sa réponse dans la case.";
-function rich(text){
-  const c=mk("div","bl");
+function richFill(c,text){c.textContent="";
   String(text).split("\n").forEach(line=>{
     if(!line.trim()||/^\s*-{3,}\s*$/.test(line))return;
     const h=line.match(/^\s*#{1,4}\s+(.*)/),li=/^\s*([-*•]|\d+[.)])\s/.test(line),e=mk(h?"h4":"p");
     e.style.margin=h?"10px 0 4px":"4px 0";if(li&&!h)e.style.paddingInlineStart="12px";
     (h?h[1]:line.replace(/^\s*[-*]\s+/,"• ").trim()).split(/\*\*(.+?)\*\*/).forEach((x,i)=>{if(!x)return;if(i%2)e.append(mk("strong","",x));else e.append(document.createTextNode(x))});
-    c.append(e)});
-  $("log").appendChild(c);$("log").scrollTop=$("log").scrollHeight;return c}
+    c.append(e)});}
+function rich(text){const c=mk("div","bl");richFill(c,text);$("log").appendChild(c);$("log").scrollTop=$("log").scrollHeight;return c}
 const getU=()=>{try{return JSON.parse(localStorage.getItem("cm_und")||"{}")}catch(e){return{}}};
 function countQ(topic){
   const u=getU(),k=ctx.subj||"_",e=u[k]||{n:0,t:[]};e.n++;if(!e.t.includes(topic))e.t.push(topic);
@@ -552,18 +565,18 @@ async function lesson(mode,q){
   if(mode==="full")return fullCourse(q);
   const again=mode==="again",full=mode==="full",topic=again?(lastQ||q):q;if(!again&&!full)lastQ=q;
   const w=say("…","a");$("send").disabled=true;
-  try{const r=await callAI(full?LF(topic):LP(again,topic),full?"fullcourse":again?"course_again":"course"),d=await r.json();w.remove();
+  try{const o=await callAI(full?LF(topic):LP(again,topic),full?"fullcourse":again?"course_again":"course",w),r=o.r,d=o.d;w.remove();
     if(r.status===429||d.error==="daily_limit")say(t().limit,"a");
-    else if(!r.ok||(!d.answer&&!d.blocks))say(t().err+" ("+(d.error||r.status)+")","a");
-    else{try{localStorage.setItem("cm_last",JSON.stringify({s:ctx.subj,q:topic}))}catch(e){}addLesson();if(d.answer){rich(d.answer);lessonActions(topic,d.answer)}else blocks(d.blocks,topic);if(mode==="learn")countQ(topic);putCache("cm_c_"+mode+"|"+ctx.subj+"|"+q,d);if(bonusMsg){bonusMsg=false;say(L("dailyDone"),"a")}}
+    else if(!o.ok||(!d.answer&&!d.blocks))say(t().err+" ("+(d.error||r.status)+")","a");
+    else{try{localStorage.setItem("cm_last",JSON.stringify({s:ctx.subj,q:topic}))}catch(e){}addLesson();if(d.answer){if(!d.shown)rich(d.answer);lessonActions(topic,d.answer)}else blocks(d.blocks,topic);if(mode==="learn")countQ(topic);putCache("cm_c_"+mode+"|"+ctx.subj+"|"+q,d);if(bonusMsg){bonusMsg=false;say(L("dailyDone"),"a")}}
   }catch(e){w.remove();say(t().err,"a")}
   $("send").disabled=false}
 async function exercise(tp){
   const w=say("…","a");$("send").disabled=true;
-  try{const r=await callAI(XP(tp),"exercise"),d=await r.json();w.remove();
+  try{const o=await callAI(XP(tp),"exercise",w),r=o.r,d=o.d;w.remove();
     if(r.status===429)say(t().limit,"a");
-    else if(!r.ok||(!d.answer&&!d.blocks))say(t().err+" ("+(d.error||r.status)+")","a");
-    else{const tx=d.answer||d.blocks.exercise||d.blocks.idea||"",c=rich(tx),inp=mk("input"),v=mk("button","btn sm",L("verify"));inp.placeholder=L("yourans");inp.style.margin="10px 0";v.onclick=()=>{if(inp.value.trim())ask("check","Exercice: "+tx+"\nRéponse: "+inp.value,false)};c.append(inp,v)}
+    else if(!o.ok||(!d.answer&&!d.blocks))say(t().err+" ("+(d.error||r.status)+")","a");
+    else{const tx=d.answer||d.blocks.exercise||d.blocks.idea||"",c=d.shown?o.c:rich(tx),inp=mk("input"),v=mk("button","btn sm",L("verify"));inp.placeholder=L("yourans");inp.style.margin="10px 0";v.onclick=()=>{if(inp.value.trim())ask("check","Exercice: "+tx+"\nRéponse: "+inp.value,false)};c.append(inp,v)}
   }catch(e){w.remove();say(t().err,"a")}
   $("send").disabled=false}
 function say(s,who){const p=mk("p","m "+who,s);$("log").appendChild(p);$("log").scrollTop=$("log").scrollHeight;return p}
@@ -593,13 +606,12 @@ async function ask(mode,text,showUser){
   if((mode==="learn"||mode==="again")&&!att)return lesson(mode,q);
   const w=say("…","a"),f=att;att=null;$("attach").hidden=true;$("send").disabled=true;
   try{
-    const r=await fetch(SUPABASE_URL+"/functions/v1/ask-ai",{method:"POST",headers:H(),body:JSON.stringify({question:ctxQ(mode,q||L("uploaded")),history:getH(mode).slice(-6),mode,subject:ctx.subj,country:cname(profile.country),grade:profile.grade||"",level:t().lv[profile.level||0],goal:profile.goal!==undefined?L("g"+profile.goal):"",filiere:profile.filiere||"",lang,file:f})});
-    const d=await r.json();w.remove();
+    const o=await postAI({question:ctxQ(mode,q||L("uploaded")),history:getH(mode).slice(-6),mode,subject:ctx.subj,country:cname(profile.country),grade:profile.grade||"",level:t().lv[profile.level||0],goal:profile.goal!==undefined?L("g"+profile.goal):"",filiere:profile.filiere||"",lang,file:f},w),r=o.r,d=o.d;w.remove();
     if(r.status===429||d.error==="daily_limit")say(t().limit,"a");
-    else if(!r.ok)say(t().err,"a");
+    else if(!o.ok)say(t().err+" ("+(d.error||r.status)+")","a");
     else{
       if(mode==="learn"||mode==="again"){if(mode==="learn")lastQ=q;try{localStorage.setItem("cm_last",JSON.stringify({s:ctx.subj,q:lastQ||q}))}catch(e){}addLesson()}
-      if(d.blocks)blocks(d.blocks,lastQ||q);else{rich(d.answer||"");if(mode==="ai"&&d.answer&&!liveOn){lessonActions(q,d.answer);countQ(q)}}
+      if(d.blocks)blocks(d.blocks,lastQ||q);else{if(!d.shown)rich(d.answer||"");if(mode==="ai"&&d.answer&&!liveOn){lessonActions(q,d.answer);countQ(q)}}
       if(mode==="essay"&&d.answer){say(L("essayNote"),"a");const cp=mk("button","btn alt sm","📋 "+L("copy"));cp.style.margin="0 0 12px";cp.onclick=()=>{try{navigator.clipboard.writeText(d.answer)}catch(e){}};$("log").appendChild(cp)}
       if(!f&&mode!=="check"&&mode!=="program"&&mode!=="filieres")putCache(cKey,d);pushH(mode,q,d);lastAns=d.answer||(d.blocks?[d.blocks.idea,d.blocks.steps].filter(Boolean).join(". "):"");
       if(bonusMsg){bonusMsg=false;say(L("dailyDone"),"a")}
@@ -627,15 +639,15 @@ let recS=null;
 async function recordTranscribe(){
   if(recS){stopRec();return}
   const AC=window.AudioContext||window.webkitAudioContext;
-  if(!AC||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){say(L("micFail"),"a");return}
-  let ac=null;try{ac=new AC();ac.resume()}catch(e){say(L("micFail"),"a");return}
+  if(!AC||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){say(L("micFail")+" (API)","a");return}
+  let ac=null;try{ac=new AC();ac.resume()}catch(e){say(L("micFail")+" ("+(e.name||"audio")+")","a");return}
   try{
     const stream=await navigator.mediaDevices.getUserMedia({audio:true}),src=ac.createMediaStreamSource(stream),pr=ac.createScriptProcessor(4096,1,1),buf=[];
     pr.onaudioprocess=e=>buf.push(new Float32Array(e.inputBuffer.getChannelData(0)));
     src.connect(pr);pr.connect(ac.destination);if(ac.state==="suspended")ac.resume();
     recS={stream,ac,pr,src,buf,rate:ac.sampleRate,t:setTimeout(stopRec,40000)};
     $("bMic").textContent="⏹";say(L("rec"),"a")
-  }catch(e){recS=null;try{ac.close()}catch(x){}say(L("micFail"),"a")}
+  }catch(e){recS=null;try{ac.close()}catch(x){}say(L("micFail")+" ("+(e.name||"erreur")+")","a")}
 }
 function stopRec(){
   const r=recS;if(!r)return;recS=null;clearTimeout(r.t);
@@ -676,33 +688,39 @@ let liveOn=false,live=null,lastAns=null;
 const plainTxt=s=>String(s).replace(/^[#>*\-\s]+/gm,"").replace(/[*_`]/g,"").replace(/\s+/g," ").trim();
 function liveStatus(x){let e=document.querySelector("#liveSt");if(!e){e=mk("div");e.id="liveSt";e.style.cssText="position:fixed;left:50%;transform:translateX(-50%);bottom:92px;background:#3a49d6;color:#fff;padding:9px 18px;border-radius:22px;z-index:200;font:700 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.25)";document.body.appendChild(e)}e.textContent="🎙️ "+x}
 function speakAsync(x){return new Promise(res=>{try{if(!window.speechSynthesis){res();return}speechSynthesis.cancel();const t0=plainTxt(x),u=new SpeechSynthesisUtterance(t0);u.lang=VL[lang];u.onend=u.onerror=()=>res();speechSynthesis.speak(u);setTimeout(res,Math.min(60000,2000+t0.length*95))}catch(e){res()}})}
+let trErr="";
 async function transcribeText(b64){
+  trErr="";
   try{if(token&&expired())await refreshSession();
     const r=await fetch(SUPABASE_URL+"/functions/v1/ask-ai",{method:"POST",headers:H(),body:JSON.stringify({question:"transcribe",mode:"transcribe",lang,file:{mime:"audio/wav",data:b64}})}),d=await r.json();
-    return r.ok&&d.answer?String(d.answer).trim():""}catch(e){return""}}
+    if(!r.ok){trErr=String(d.error||r.status);return""}
+    if(d.answer&&String(d.answer).length>700){trErr="serveur à mettre à jour";return""}
+    return d.answer?String(d.answer).trim():""}catch(e){trErr=e.name||"réseau";return""}}
 async function startLive(){
   if(liveOn){stopLive();return}
   const AC=window.AudioContext||window.webkitAudioContext;
-  if(!AC||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){say(L("micFail"),"a");return}
-  let ac=null;try{ac=new AC();ac.resume()}catch(e){say(L("micFail"),"a");return}
+  if(!AC||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){say(L("micFail")+" (API)","a");return}
+  let ac=null;try{ac=new AC();ac.resume()}catch(e){say(L("micFail")+" ("+(e.name||"audio")+")","a");return}
   try{
     const stream=await navigator.mediaDevices.getUserMedia({audio:true}),src=ac.createMediaStreamSource(stream),pr=ac.createScriptProcessor(4096,1,1);
-    live={stream,ac,src,pr,buf:[],pre:[],heard:false,quiet:0,bd:0,idleT:0,idle:0,speaking:false,busy:false,rate:ac.sampleRate};
+    live={stream,ac,src,pr,buf:[],pre:[],heard:false,quiet:0,bd:0,idleT:0,idle:0,speaking:false,busy:false,rate:ac.sampleRate,cal:0,noise:0,thr:0.012,k:0};
     pr.onaudioprocess=e=>liveChunk(new Float32Array(e.inputBuffer.getChannelData(0)));
     src.connect(pr);pr.connect(ac.destination);if(ac.state==="suspended")ac.resume();
     liveOn=true;$("cLive").textContent="⏹ "+L("liveStop");liveStatus(L("liveListen"))
-  }catch(e){try{ac.close()}catch(x){}say(L("micFail"),"a")}
+  }catch(e){try{ac.close()}catch(x){}say(L("micFail")+" ("+(e.name||"erreur")+")","a")}
 }
 function liveChunk(c){
   const S=live;if(!S||S.speaking||S.busy)return;
   let sum=0;for(let i=0;i<c.length;i++)sum+=c[i]*c[i];const rms=Math.sqrt(sum/c.length),dur=c.length/S.rate;
-  if(rms>0.018){if(!S.heard){S.heard=true;S.buf=S.pre.slice()}S.quiet=0}else if(S.heard)S.quiet+=dur;
-  if(S.heard){S.buf.push(c);S.bd+=dur;if(S.quiet>1.4||S.bd>28){S.busy=true;const w=toWav(S.buf,S.rate);S.buf=[];S.heard=false;S.quiet=0;S.bd=0;if(w)liveTurn(w);else S.busy=false}}
+  if(S.cal<6){S.cal++;S.noise=S.cal===1?rms:Math.min(S.noise,rms);if(S.cal===6)S.thr=Math.min(0.05,Math.max(0.012,S.noise*3+0.004));return}
+  if(++S.k%3===0){const n=Math.max(0,Math.min(6,Math.round(rms/S.thr)));liveStatus(L(S.heard?"liveThink":"liveListen").replace("…","")+" "+"▮".repeat(n)+"▯".repeat(6-n))}
+  if(rms>S.thr){if(!S.heard){S.heard=true;S.buf=S.pre.slice()}S.quiet=0}else if(S.heard)S.quiet+=dur;
+  if(S.heard){S.buf.push(c);S.bd+=dur;if(S.quiet>1.4||S.bd>28){S.busy=true;const w=toWav(S.buf,S.rate);S.buf=[];S.heard=false;S.quiet=0;S.bd=0;if(w)liveTurn(w);else{S.busy=false;liveStatus(L("liveListen"))}}}
   else{S.pre.push(c);if(S.pre.length>2)S.pre.shift();S.idleT+=dur;if(S.idleT>12){S.idleT=0;S.idle++;if(S.idle>=3)stopLive()}}
 }
 async function liveTurn(w){
   liveStatus(L("liveThink"));const txt=await transcribeText(w);if(!live)return;
-  if(!txt){live.busy=false;liveStatus(L("liveListen"));return}
+  if(!txt){if(trErr){say(L("micFail")+" ("+trErr+")","a");stopLive();return}live.busy=false;liveStatus(L("liveRetry"));setTimeout(()=>{if(live&&!live.busy)liveStatus(L("liveListen"))},1800);return}
   lastAns=null;await ask("ai",txt);if(!live)return;
   if(lastAns===null){stopLive();return}
   if(lastAns){liveStatus(L("liveSpeak"));live.speaking=true;await speakAsync(lastAns);if(!live)return}
