@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Cerveau Malin</title>
+<title>Cerveau Malin – Cours, exercices et bourses avec une IA gratuite</title>
+<meta name="description" content="Cerveau Malin : application gratuite pour apprendre, comprendre et réussir. Cours détaillés, exercices, dissertations, bourses et universités avec une IA qui s'adapte à ton niveau.">
+<!-- ADSENSE : collez ici le code fourni par Google AdSense (la balise script et/ou la balise meta google-adsense-account) -->
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#3a49d6"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <style>
 
@@ -64,6 +66,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 
 .sp{padding-bottom:120px}
+.about{margin-top:34px;padding-top:6px;border-top:1px solid var(--line)}
+.about h2{font-size:22px;margin:22px 0 10px}.about ul{padding-left:20px;margin:0 0 14px}.about li{margin-bottom:6px}
+.foot{margin:26px 0 8px;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px}.foot a{color:var(--acc);text-decoration:underline}
+.foot span{color:var(--mute);width:100%}
 .hdr{display:flex;align-items:center;gap:12px}
 .av{width:54px;height:54px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font:700 22px Georgia,serif;border:3px solid #22c55e;overflow:hidden;cursor:pointer;flex:none;padding:0}
 .av img{width:100%;height:100%;object-fit:cover}
@@ -102,6 +108,26 @@ button{font:inherit;color:inherit;cursor:pointer}
   <p id="hIntro" class="mute"></p>
   <div class="chips" id="langChips" role="group"></div>
   <button id="start" class="btn full"></button>
+
+  <div class="about">
+    <h2>Qu'est-ce que Cerveau Malin ?</h2>
+    <p>Cerveau Malin est une application d'apprentissage gratuite pour les élèves et les étudiants. Elle te permet de poser tes questions à une intelligence artificielle qui t'explique tes cours de façon détaillée, étape par étape, et qui s'adapte à ton niveau.</p>
+    <h2>Ce que tu peux faire</h2>
+    <ul>
+      <li>Comprendre tes cours avec des explications longues et claires, matière par matière.</li>
+      <li>T'entraîner avec des exercices proposés au bon moment.</li>
+      <li>Préparer des dissertations et des devoirs.</li>
+      <li>Trouver des bourses d'études et des filières universitaires.</li>
+      <li>Utiliser l'application en français, anglais, russe, chinois, turc et arabe.</li>
+    </ul>
+    <p>Cerveau Malin est créé par Yacoub Moussa Abakar, à N'Djamena (Tchad), pour aider chaque élève à réussir ses études.</p>
+    <nav class="foot" aria-label="Informations">
+      <span>© 2026 Cerveau Malin</span>
+      <a href="a-propos.html">À propos</a>
+      <a href="confidentialite.html">Politique de confidentialité</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
 </section>
 
 <section id="ad" class="scr">
@@ -286,9 +312,10 @@ const ADS=[
  {ic:"🗣️",t:["Parle anglais, chinois ou turc avec confiance","Speak English, Chinese or Turkish with confidence","Говори по-английски, по-китайски или по-турецки уверенно","自信地说英语、中文或土耳其语","İngilizce, Çince veya Türkçe'yi güvenle konuş","تحدّث الإنجليزية أو الصينية أو التركية بثقة"]}
 ];
 let adI=0;
-const AD_CONFIG={wait:5,adsenseClient:"",adsenseSlot:""}; /* remplir pour activer Google AdSense */
+const AD_CONFIG={wait:5,demo:false,adsenseClient:"",adsenseSlot:""}; /* remplir pour activer Google AdSense */
 function drawAd(el,big){
   if(!el)return;
+  if(!AD_CONFIG.adsenseClient&&!AD_CONFIG.demo){el.style.display="none";return}
   if(AD_CONFIG.adsenseClient&&AD_CONFIG.adsenseSlot){
     if(el.dataset.done||!navigator.onLine)return;el.dataset.done=1;el.innerHTML="";
     const ins=document.createElement("ins");ins.className="adsbygoogle";ins.style.display="block";ins.dataset.adClient=AD_CONFIG.adsenseClient;ins.dataset.adSlot=AD_CONFIG.adsenseSlot;ins.dataset.adFormat="auto";el.appendChild(ins);
@@ -772,7 +799,7 @@ async function saveNewPw(){
 function enter(){if(ok()&&!token){show("acc");return}tab="prof";$("chat").hidden=true;render();show("space")}
 function setLang(v){lang=v;try{localStorage.setItem("cm_lang",lang)}catch(e){}render()}
 
-$("start").onclick=()=>{show("ad");let n=AD_CONFIG.wait;const b=$("adGo");b.disabled=true;b.textContent=t().adWait(n);
+$("start").onclick=()=>{if(!AD_CONFIG.adsenseClient&&!AD_CONFIG.demo){show("prof");return}show("ad");let n=AD_CONFIG.wait;const b=$("adGo");b.disabled=true;b.textContent=t().adWait(n);
   const iv=setInterval(()=>{n--;if(n>0)b.textContent=t().adWait(n);else{clearInterval(iv);b.disabled=false;b.textContent=t().adGo}},1000)};
 $("adGo").onclick=()=>show("prof");
 $("profNext").onclick=()=>{profile.name=$("pname").value.trim();profile.country=$("country").value;profile.grade=$("grade").value;profile.level=profile.level||0;saveP();token?enter():show("acc")};
